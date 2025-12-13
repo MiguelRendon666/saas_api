@@ -8,6 +8,7 @@ class ProveedorMarca(BaseObject):
     
     # Relaciones
     productos = db.relationship('Producto', back_populates='proveedorMarca')
+    proveedor_productos = db.relationship('ProveedorProducto', back_populates='proveedor_marca')
     
     def __repr__(self):
         return f'<ProveedorMarca {self.nombre}>'

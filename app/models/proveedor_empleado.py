@@ -8,5 +8,9 @@ class ProveedorEmpleado(BaseContactoObject):
     apellidoMaterno = db.Column(db.String(100), nullable=False)
     nombres = db.Column(db.String(200), nullable=False)
     
+    # Relaciones
+    proveedor_empresas = db.relationship('ProveedorEmpresa', back_populates='proveedor_empleado')
+    proveedor_productos = db.relationship('ProveedorProducto', back_populates='proveedor_empleado')
+    
     def __repr__(self):
         return f'<ProveedorEmpleado {self.nombres} {self.apellidoPaterno}>'

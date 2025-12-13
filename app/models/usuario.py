@@ -17,6 +17,7 @@ class Usuario(BaseContactoObject):
     # Relaciones
     empresa = db.relationship('Empresa', foreign_keys=[fkEmpresa], back_populates='usuario')
     sucursal = db.relationship('Sucursal', foreign_keys=[fkSucursal], back_populates='usuarios')
+    usuario_roles = db.relationship('UsuarioRol', back_populates='usuario')
     
     def __repr__(self):
         return f'<Usuario {self.usuario}>'
