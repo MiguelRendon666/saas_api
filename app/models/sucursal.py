@@ -4,6 +4,7 @@ from app.models.base import BaseObject
 class Sucursal(BaseObject):
     __tablename__ = 'sucursal'
     
+    clave = db.Column(db.String(50), nullable=False, unique=True)
     nombre = db.Column(db.String(200), nullable=False)
     folio = db.Column(db.String(100), nullable=False)
     direccion = db.Column(db.String(500), nullable=False)

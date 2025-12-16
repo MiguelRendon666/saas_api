@@ -4,6 +4,7 @@ from app.models.base import BaseObject
 class ProveedorMarca(BaseObject):
     __tablename__ = 'proveedor_marca'
     
+    clave = db.Column(db.String(50), nullable=False, unique=True)
     nombre = db.Column(db.String(200), nullable=False)
     
     # Relaciones

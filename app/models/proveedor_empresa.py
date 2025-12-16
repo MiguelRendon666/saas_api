@@ -4,6 +4,8 @@ from app.models.base import BaseObject
 class ProveedorEmpresa(BaseObject):
     __tablename__ = 'proveedor_empresa'
     
+    clave = db.Column(db.String(50), nullable=False, unique=True)
+    
     # Foreign Keys
     fkProveedorEmpleado = db.Column(db.String(36), db.ForeignKey('proveedor_empleado.oid'), nullable=False)
     fkEmpresa = db.Column(db.String(36), db.ForeignKey('empresa.oid'), nullable=False)
