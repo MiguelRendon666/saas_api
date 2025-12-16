@@ -13,7 +13,6 @@ class Empresa(BaseContactoObject):
     # Relaciones (1:1 con Usuario, 1:N con Sucursal)
     usuario = db.relationship('Usuario', foreign_keys='Usuario.fkEmpresa', back_populates='empresa', uselist=False)
     sucursales = db.relationship('Sucursal', back_populates='empresa', foreign_keys='Sucursal.fkEmpresa')
-    proveedor_empresas = db.relationship('ProveedorEmpresa', back_populates='empresa')
     
     def __repr__(self):
         return f'<Empresa {self.nombre}>'
