@@ -1,0 +1,25 @@
+from app import db
+from app.models.base import BaseObject
+from app.enums import TipoCosto
+
+class EntradaMercanciaDetalle(BaseObject):
+    __tablename__ = 'entrada_mercancia_detalle'
+    
+    cantidad = db.Column(db.Numeric(10, 2), nullable=False)
+    tipo_costo = db.Column(db.Enum(TipoCosto), nullable=False)
+    costo_por_pieza = db.Column(db.Numeric(10, 2), nullable=False)
+    descuento_por_pieza = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    subtotal = db.Column(db.Numeric(10, 2), nullable=False)
+    descuento = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    total = db.Column(db.Numeric(10, 2), nullable=False)
+    
+    # Foreign Keys
+    fkEntradaMercancia = db.Column(db.String(36), db.ForeignKey('entrada_mercancia.oid'), nullable=False)
+    fkProducto = db.Column(db.String(36), db.ForeignKey('producto.oid'), nullable=False)
+    
+    # Relaciones
+    entrada_mercancia = db.relationship('EntradaMercancia', back_populates='detalles')
+    producto = db.relationship('Producto', foreign_keys=[fkProducto])
+    
+    def __repr__(self):
+        return f'<EntradaMercanciaDetalle {self.oid}>'

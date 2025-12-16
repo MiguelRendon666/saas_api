@@ -1,0 +1,18 @@
+from app import db
+from app.models.base import BaseObject
+
+class TraspasoMercanciaDetalle(BaseObject):
+    __tablename__ = 'traspaso_mercancia_detalle'
+    
+    cantidad = db.Column(db.Numeric(10, 2), nullable=False)
+    
+    # Foreign Keys
+    fkTraspasoMercancia = db.Column(db.String(36), db.ForeignKey('traspaso_mercancia.oid'), nullable=False)
+    fkProducto = db.Column(db.String(36), db.ForeignKey('producto.oid'), nullable=False)
+    
+    # Relaciones
+    traspaso_mercancia = db.relationship('TraspasoMercancia', back_populates='detalles')
+    producto = db.relationship('Producto', foreign_keys=[fkProducto])
+    
+    def __repr__(self):
+        return f'<TraspasoMercanciaDetalle {self.oid}>'
