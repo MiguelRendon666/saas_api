@@ -20,6 +20,7 @@ from app.models.traspaso_mercancia import TraspasoMercancia
 from app.models.traspaso_mercancia_detalle import TraspasoMercanciaDetalle
 from app.models.entrada_mercancia import EntradaMercancia
 from app.models.entrada_mercancia_detalle import EntradaMercanciaDetalle
+from app.models.inventario_lotes import InventarioLotes
 
 __all__ = [
     'BaseObject',
@@ -43,5 +44,6 @@ __all__ = [
     'TraspasoMercancia',
     'TraspasoMercanciaDetalle',
     'EntradaMercancia',
-    'EntradaMercanciaDetalle'
+    'EntradaMercanciaDetalle',
+    'InventarioLotes'
 ]

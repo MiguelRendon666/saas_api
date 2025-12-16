@@ -18,6 +18,7 @@ class Producto(BaseObject):
     proveedor_productos = db.relationship('ProveedorProducto', back_populates='producto')
     stock_sucursales = db.relationship('StockSucursal', back_populates='producto')
     lista_precios = db.relationship('ListaPrecios', back_populates='producto')
+    inventario_lotes = db.relationship('InventarioLotes', back_populates='producto')
     
     def __repr__(self):
         return f'<Producto {self.nombre}>'

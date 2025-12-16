@@ -13,11 +13,12 @@ class Sucursal(BaseObject):
     # Foreign Key
     fkEmpresa = db.Column(db.String(36), db.ForeignKey('empresa.oid'), nullable=False)
     
-    # Relaciones (1 sucursal tiene N usuarios)
+    # Relaciones
     usuarios = db.relationship('Usuario', foreign_keys='Usuario.fkSucursal', back_populates='sucursal')
     empresa = db.relationship('Empresa', back_populates='sucursales', foreign_keys=[fkEmpresa])
     stock_sucursales = db.relationship('StockSucursal', back_populates='sucursal')
     lista_precios = db.relationship('ListaPrecios', back_populates='sucursal')
+    inventario_lotes = db.relationship('InventarioLotes', back_populates='sucursal')
     
     def __repr__(self):
         return f'<Sucursal {self.nombre}>'
