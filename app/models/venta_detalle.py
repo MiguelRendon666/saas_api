@@ -11,8 +11,8 @@ class VentaDetalle(BaseObject):
     total = db.Column(db.Numeric(10, 2), nullable=False)
     
     # Foreign Keys
-    fkVenta = db.Column(db.String(36), db.ForeignKey('venta.oid'), nullable=False)
-    fkProducto = db.Column(db.String(36), db.ForeignKey('producto.oid'), nullable=False)
+    fkVenta = db.Column(db.String(36), db.ForeignKey('venta.oid'), nullable=False, index=True)
+    fkProducto = db.Column(db.String(36), db.ForeignKey('producto.oid'), nullable=False, index=True)
     
     # Relaciones
     venta = db.relationship('Venta', back_populates='detalles')

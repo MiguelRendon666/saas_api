@@ -7,8 +7,8 @@ class TraspasoMercanciaDetalle(BaseObject):
     cantidad = db.Column(db.Numeric(10, 2), nullable=False)
     
     # Foreign Keys
-    fkTraspasoMercancia = db.Column(db.String(36), db.ForeignKey('traspaso_mercancia.oid'), nullable=False)
-    fkProducto = db.Column(db.String(36), db.ForeignKey('producto.oid'), nullable=False)
+    fkTraspasoMercancia = db.Column(db.String(36), db.ForeignKey('traspaso_mercancia.oid'), nullable=False, index=True)
+    fkProducto = db.Column(db.String(36), db.ForeignKey('producto.oid'), nullable=False, index=True)
     
     # Relaciones
     traspaso_mercancia = db.relationship('TraspasoMercancia', back_populates='detalles')

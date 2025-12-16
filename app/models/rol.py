@@ -4,7 +4,7 @@ from app.models.base import BaseObject
 class Rol(BaseObject):
     __tablename__ = 'rol'
     
-    nombre = db.Column(db.String(100), nullable=False, unique=True)
+    nombre = db.Column(db.String(100), nullable=False, unique=True, index=True)
     
     # Relaciones
     usuario_roles = db.relationship('UsuarioRol', back_populates='rol')

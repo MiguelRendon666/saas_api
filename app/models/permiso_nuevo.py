@@ -4,8 +4,8 @@ from app.models.base import BaseObject
 class Permiso(BaseObject):
     __tablename__ = 'permisos'
     
-    nombre = db.Column(db.String(100), nullable=False)
-    permiso = db.Column(db.String(100), nullable=False)
+    nombre = db.Column(db.String(100), nullable=False, index=True)
+    permiso = db.Column(db.String(100), nullable=False, index=True)
     
     # Relación con permisos asignados
     permisos_asignados = db.relationship('PermisoAsignado', back_populates='permiso')

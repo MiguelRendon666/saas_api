@@ -5,13 +5,13 @@ from app.enums import UnidadMedida
 class Producto(BaseObject):
     __tablename__ = 'producto'
     
-    clave = db.Column(db.String(50), nullable=False, unique=True)
-    nombre = db.Column(db.String(200), nullable=False)
-    codigo_barras = db.Column(db.String(100), nullable=True, unique=True)
+    clave = db.Column(db.String(50), nullable=False, unique=True, index=True)
+    nombre = db.Column(db.String(200), nullable=False, index=True)
+    codigo_barras = db.Column(db.String(100), nullable=True, unique=True, index=True)
     unidadMedida = db.Column(db.Enum(UnidadMedida), nullable=False)
     
     # Foreign Key
-    fkProveedorMarca = db.Column(db.String(36), db.ForeignKey('proveedor_marca.oid'), nullable=False)
+    fkProveedorMarca = db.Column(db.String(36), db.ForeignKey('proveedor_marca.oid'), nullable=False, index=True)
     
     # Relaciones
     proveedorMarca = db.relationship('ProveedorMarca', back_populates='productos')

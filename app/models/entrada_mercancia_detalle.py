@@ -6,7 +6,7 @@ class EntradaMercanciaDetalle(BaseObject):
     __tablename__ = 'entrada_mercancia_detalle'
     
     cantidad = db.Column(db.Numeric(10, 2), nullable=False)
-    tipo_costo = db.Column(db.Enum(TipoCosto), nullable=False)
+    tipo_costo = db.Column(db.Enum(TipoCosto), nullable=False, index=True)
     costo_por_pieza = db.Column(db.Numeric(10, 2), nullable=False)
     descuento_por_pieza = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
@@ -14,8 +14,8 @@ class EntradaMercanciaDetalle(BaseObject):
     total = db.Column(db.Numeric(10, 2), nullable=False)
     
     # Foreign Keys
-    fkEntradaMercancia = db.Column(db.String(36), db.ForeignKey('entrada_mercancia.oid'), nullable=False)
-    fkProducto = db.Column(db.String(36), db.ForeignKey('producto.oid'), nullable=False)
+    fkEntradaMercancia = db.Column(db.String(36), db.ForeignKey('entrada_mercancia.oid'), nullable=False, index=True)
+    fkProducto = db.Column(db.String(36), db.ForeignKey('producto.oid'), nullable=False, index=True)
     
     # Relaciones
     entrada_mercancia = db.relationship('EntradaMercancia', back_populates='detalles')
