@@ -21,6 +21,8 @@ from app.models.traspaso_mercancia_detalle import TraspasoMercanciaDetalle
 from app.models.entrada_mercancia import EntradaMercancia
 from app.models.entrada_mercancia_detalle import EntradaMercanciaDetalle
 from app.models.inventario_lotes import InventarioLotes
+from app.models.turno_sucursal import TurnoSucursal
+from app.models.corte_caja import CorteCaja
 
 __all__ = [
     'BaseObject',
@@ -45,5 +47,7 @@ __all__ = [
     'TraspasoMercanciaDetalle',
     'EntradaMercancia',
     'EntradaMercanciaDetalle',
-    'InventarioLotes'
+    'InventarioLotes',
+    'TurnoSucursal',
+    'CorteCaja'
 ]
