@@ -15,6 +15,7 @@ class ListaPrecios(BaseObject):
     precioMayoreo = db.Column(db.Numeric(10, 2), nullable=True)
     precioPromocion = db.Column(db.Numeric(10, 2), nullable=True)
     vigenciaPromocion = db.Column(db.DateTime, nullable=True, index=True)
+    precio_modificado = db.Column(db.Boolean, nullable=False, default=False)
     
     # Relaciones
     sucursal = db.relationship('Sucursal', back_populates='lista_precios')

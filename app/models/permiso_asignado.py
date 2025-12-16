@@ -12,6 +12,7 @@ class PermisoAsignado(BaseObject):
     crear = db.Column(db.Boolean, nullable=False, default=False)
     editar = db.Column(db.Boolean, nullable=False, default=False)
     desactivar = db.Column(db.Boolean, nullable=False, default=False)
+    cancelar = db.Column(db.Boolean, nullable=False, default=False)
     
     # Relaciones
     permiso = db.relationship('Permiso', back_populates='permisos_asignados')
