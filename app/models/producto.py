@@ -9,6 +9,7 @@ class Producto(BaseObject):
     nombre = db.Column(db.String(200), nullable=False, index=True)
     codigo_barras = db.Column(db.String(100), nullable=True, unique=True, index=True)
     unidadMedida = db.Column(db.Enum(UnidadMedida), nullable=False)
+    is_especial = db.Column(db.Boolean, nullable=False, default=False)
     
     # Foreign Key
     fkProveedorMarca = db.Column(db.String(36), db.ForeignKey('proveedor_marca.oid'), nullable=False, index=True)

@@ -9,6 +9,7 @@ class EntradaMercancia(BaseObject):
     descuento = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     costo_total = db.Column(db.Numeric(10, 2), nullable=False)
     observaciones = db.Column(db.Text, nullable=True)
+    motivo = db.Column(db.String(500), nullable=True)
     
     # Foreign Keys
     fkEmpresa = db.Column(db.String(36), db.ForeignKey('empresa.oid'), nullable=False, index=True)
