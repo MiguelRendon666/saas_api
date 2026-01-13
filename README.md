@@ -1,92 +1,125 @@
-# SaaS API - Flask Project
+# SaaS API - Microservices Architecture
 
-Proyecto Flask con SQLAlchemy para gestión de base de datos "saascryption".
+Backend de la aplicación SaaS dividido en microservicios independientes.
 
-## Estructura del Proyecto
+## 🏗️ Arquitectura de Microservicios
 
-```
-saas_api/
-├── app/
-│   ├── __init__.py
-│   └── models/
-│       ├── __init__.py
-│       ├── base.py              # BaseObject, BaseContactoObject, Enumeradores
-│       ├── empresa.py
-│       ├── usuario.py
-│       ├── rol.py
-│       ├── permiso.py
-│       ├── sucursal.py
-│       ├── proveedor.py
-│       └── producto.py
-├── config.py
-├── run.py
-├── requirements.txt
-└── README.md
-```
+Este proyecto está organizado en 5 microservicios independientes, cada uno con su propia base de datos:
 
-## Modelos
+### 1. 🔐 **Auth Service** (`auth_service/`)
+- **Base de datos:** `auth_service_db`
+- **Responsabilidad:** Autenticación, autorización y gestión de usuarios
+- **Modelos:** Empresa, Usuario, Rol, UsuarioRol, Permiso, PermisoAsignado
 
-### BaseObject
-Clase base para todos los modelos con:
-- `oid` (UUID)
-- `createdAt` (DateTime)
-- `updatedAt` (DateTime)
-- `estatus` (Enum: Activo, Inactivo, Eliminado)
+### 2. 🏪 **Branch Service** (`branch_service/`)
+- **Base de datos:** `branch_service_db`
+- **Responsabilidad:** Gestión de sucursales y turnos
+- **Modelos:** Sucursal, TurnoSucursal, CorteCaja
 
-### BaseContactoObject
-Extiende BaseObject agregando:
-- `telefono` (nullable)
-- `email` (nullable)
+### 3. 📦 **Inventory Service** (`inventory_service/`)
+- **Base de datos:** `inventory_service_db`
+- **Responsabilidad:** Gestión de productos, stock e inventarios
+- **Modelos:** Producto, StockSucursal, ListaPrecios, InventarioLotes
 
-### Modelos Principales
-- **Empresa**: Información de empresas con logo, dirección y contacto
-- **Usuario**: Usuarios del sistema con credenciales
-- **Rol**: Roles del sistema
-- **Permiso**: Permisos con flags de crear, editar, desactivar
-- **Sucursal**: Sucursales de empresas
-- **ProveedorMarca**: Marcas de proveedores
-- **ProveedorEmpleado**: Empleados de proveedores
-- **Producto**: Productos con unidad de medida
+### 4. 🚚 **Supplier Service** (`supplier_service/`)
+- **Base de datos:** `supplier_service_db`
+- **Responsabilidad:** Proveedores, entradas y traspasos de mercancía
+- **Modelos:** ProveedorEmpleado, ProveedorEmpresa, ProveedorMarca, ProveedorProducto, EntradaMercancia, EntradaMercanciaDetalle, TraspasoMercancia, TraspasoMercanciaDetalle
 
-## Instalación
+### 5. 💰 **Sales Service** (`sales_service/`)
+- **Base de datos:** `sales_service_db`
+- **Responsabilidad:** Gestión de ventas
+- **Modelos:** Venta, VentaDetalle
 
-1. Crear entorno virtual:
+---
+
+## 🚀 Instalación y Configuración
+
+Cada microservicio es independiente y debe configurarse por separado.
+
+### Requisitos Generales
+- Python 3.10+
+- PostgreSQL 14+
+
+### Configuración por Microservicio
+
+Para cada microservicio (auth_service, branch_service, inventory_service, supplier_service, sales_service):
+
+1. **Crear entorno virtual:**
 ```bash
+cd <nombre_servicio>
 python -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Linux/Mac
 ```
 
-2. Instalar dependencias:
+2. **Instalar dependencias:**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Configurar variables de entorno:
-- Copiar `.env.example` a `.env`
-- Configurar la cadena de conexión a PostgreSQL
-
-4. Crear la base de datos:
-```sql
-CREATE DATABASE saascryption;
-```
-
-5. Ejecutar la aplicación:
+3. **Configurar variables de entorno:**
 ```bash
-python run.py
+copy .env.example .env  # Windows
+# cp .env.example .env  # Linux/Mac
+```
+Editar `.env` con la configuración de base de datos correspondiente.
+
+4. **Crear base de datos PostgreSQL:**
+```sql
+CREATE DATABASE <nombre_base_datos>;
 ```
 
-## Configuración de Base de Datos
+5. **Inicializar migraciones:**
+```bash
+flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
+```
 
-El proyecto está configurado para usar PostgreSQL. Ajusta la variable `DATABASE_URL` en el archivo `.env`:
+---
+
+## 📊 Bases de Datos
+
+Crear las siguientes bases de datos en PostgreSQL:
+- `auth_service_db`
+- `branch_service_db`
+- `inventory_service_db`
+- `supplier_service_db`
+- `sales_service_db`
+
+---
+
+## 🔗 Comunicación entre Microservicios
+
+Los microservicios están diseñados para comunicarse entre sí mediante APIs REST. Las foreign keys que referencian otras bases de datos se almacenan como strings (OIDs) sin constraints de base de datos.
+
+---
+
+## 📝 Notas de Desarrollo
+
+- Cada servicio tiene su clase `Base` y `BaseContactoObject` independiente
+- Los enums se duplican en cada servicio que los necesita
+- No hay dependencias de código entre servicios
+- Cada servicio puede desplegarse y escalar independientemente
+
+## 📁 Estructura de Directorios
 
 ```
-DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/saascryption
+saas_api/
+├── auth_service/
+│   ├── app/
+│   │   ├── models/
+│   │   └── enums/
+│   ├── config.py
+│   ├── requirements.txt
+│   └── .env.example
+├── branch_service/
+│   └── ...
+├── inventory_service/
+│   └── ...
+├── supplier_service/
+│   └── ...
+└── sales_service/
+    └── ...
 ```
-
-## Notas Técnicas
-
-- **Tablas**: Nombres en `snake_case`
-- **Variables Python**: Nombres en `camelCase`
-- **Nullable**: Solo campos en BaseContactoObject son nullable
-- **UUIDs**: Todas las tablas usan UUID como primary key
-- **Relaciones**: Todas las foreign keys incluyen tanto la columna OID como la referencia al objeto
