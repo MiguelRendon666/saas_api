@@ -14,6 +14,7 @@ class CorteCaja(BaseObject):
     fkUsuario = db.Column(db.String(36), nullable=False, index=True)
     fkTurno = db.Column(db.String(36), db.ForeignKey('turno_sucursal.oid'), nullable=False, index=True)
     fkSucursal = db.Column(db.String(36), db.ForeignKey('sucursal.oid'), nullable=False, index=True)
+    fkSistema = db.Column(db.String(36), nullable=False, index=True)
     
     # Relaciones
     turno = db.relationship('TurnoSucursal', back_populates='cortes_caja')

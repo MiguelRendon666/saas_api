@@ -16,6 +16,7 @@ class EntradaMercancia(BaseObject):
     fkSucursal = db.Column(db.String(36), nullable=False, index=True)
     fkProveedorEmpleado = db.Column(db.String(36), nullable=True, index=True)
     fkProveedorEmpresa = db.Column(db.String(36), nullable=True, index=True)
+    fkSistema = db.Column(db.String(36), nullable=False, index=True)
     
     # Relaciones
     detalles = db.relationship('EntradaMercanciaDetalle', back_populates='entrada_mercancia')

@@ -17,6 +17,7 @@ class Venta(BaseObject):
     fkEmpresa = db.Column(db.String(36), nullable=False, index=True)
     fkSucursal = db.Column(db.String(36), nullable=False, index=True)
     fkUsuario = db.Column(db.String(36), nullable=False, index=True)
+    fkSistema = db.Column(db.String(36), nullable=False, index=True)
     
     # Relaciones
     detalles = db.relationship('VentaDetalle', back_populates='venta')

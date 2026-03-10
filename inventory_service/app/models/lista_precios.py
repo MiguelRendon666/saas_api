@@ -7,6 +7,7 @@ class ListaPrecios(BaseObject):
     # Foreign Keys - referencias a otros microservicios
     fkSucursal = db.Column(db.String(36), nullable=False, index=True)
     fkProducto = db.Column(db.String(36), nullable=False, index=True)
+    fkSistema = db.Column(db.String(36), nullable=False, index=True)
     
     # Precios
     precioVenta = db.Column(db.Numeric(10, 2), nullable=False)

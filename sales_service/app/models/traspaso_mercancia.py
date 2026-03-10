@@ -14,6 +14,7 @@ class TraspasoMercancia(BaseObject):
     fkEmpresa = db.Column(db.String(36), nullable=False, index=True)
     fkSucursalOrigen = db.Column(db.String(36), nullable=False, index=True)
     fkSucursalDestino = db.Column(db.String(36), nullable=False, index=True)
+    fkSistema = db.Column(db.String(36), nullable=False, index=True)
     
     # Relaciones
     detalles = db.relationship('TraspasoMercanciaDetalle', back_populates='traspaso_mercancia')
