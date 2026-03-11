@@ -1,15 +1,16 @@
 # Catalogues Service
 
-Microservicio de catálogos: empresas y productos.
+Microservicio de catálogos: empresas, productos y sistemas.
 
 ## Modelos incluidos:
 - Empresa
 - Producto
+- Sistema
 
 ## Base de datos
 - Base de datos: `catalogues_service_db`
 - Tablas compartidas: `Base`, `BaseContactoObject`
-- Enums: `UnidadMedida`
+- Enums: `UnidadMedida`, `TipoSistema`
 
 ## Instalación
 ```bash
