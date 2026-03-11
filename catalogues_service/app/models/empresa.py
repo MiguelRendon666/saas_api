@@ -10,5 +10,8 @@ class Empresa(BaseContactoObject):
     urlLogo = db.Column(db.String(500), nullable=False)
     direccion = db.Column(db.String(500), nullable=False)
     
+    # Relación con Sucursales
+    sucursales = db.relationship('Sucursal', back_populates='empresa', lazy='dynamic')
+    
     def __repr__(self):
         return f'<Empresa {self.nombre}>'

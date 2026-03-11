@@ -11,7 +11,10 @@ class Sucursal(BaseObject):
     telefono = db.Column(db.String(20), nullable=True)
     
     # Foreign Key - referencia a empresa
-    fkEmpresa = db.Column(db.String(36), nullable=False, index=True)
+    fkEmpresa = db.Column(db.String(36), db.ForeignKey('empresa.oid'), nullable=False, index=True)
+    
+    # Relación con Empresa
+    empresa = db.relationship('Empresa', back_populates='sucursales')
     
     def __repr__(self):
         return f'<Sucursal {self.nombre}>'
