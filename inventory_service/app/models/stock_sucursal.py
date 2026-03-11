@@ -5,6 +5,7 @@ class StockSucursal(BaseObject):
     __tablename__ = 'stock_sucursal'
     
     # Foreign Keys - referencias a otros microservicios
+    fkEmpresa = db.Column(db.String(36), nullable=False, index=True)
     fkSucursal = db.Column(db.String(36), nullable=False, index=True)
     fkProducto = db.Column(db.String(36), nullable=False, index=True)
     
@@ -14,6 +15,7 @@ class StockSucursal(BaseObject):
     # Índices
     __table_args__ = (
         db.Index('ix_stock_sucursal_producto', 'fkSucursal', 'fkProducto', unique=True),
+        db.Index('ix_stock_empresa', 'fkEmpresa'),
     )
     
     def __repr__(self):

@@ -10,12 +10,8 @@ class Sucursal(BaseObject):
     direccion = db.Column(db.String(500), nullable=False)
     telefono = db.Column(db.String(20), nullable=True)
     
-    # Foreign Key - referencia a empresa en otro microservicio
+    # Foreign Key - referencia a empresa
     fkEmpresa = db.Column(db.String(36), nullable=False, index=True)
-    
-    # Relaciones
-    turnos = db.relationship('TurnoSucursal', back_populates='sucursal')
-    cortes_caja = db.relationship('CorteCaja', back_populates='sucursal')
     
     def __repr__(self):
         return f'<Sucursal {self.nombre}>'

@@ -4,32 +4,37 @@ Backend de la aplicación SaaS dividido en microservicios independientes.
 
 ## 🏗️ Arquitectura de Microservicios
 
-Este proyecto está organizado en 5 microservicios independientes, cada uno con su propia base de datos:
+Este proyecto está organizado en 6 microservicios independientes, cada uno con su propia base de datos:
 
 ### 1. 🔐 **Auth Service** (`auth_service/`)
 - **Base de datos:** `auth_service_db`
 - **Responsabilidad:** Autenticación, autorización y gestión de usuarios
-- **Modelos:** Empresa, Usuario, Rol, UsuarioRol, Permiso, PermisoAsignado
+- **Modelos:** Usuario, Rol, UsuarioRol, Permiso, PermisoAsignado
 
-### 2. 🏪 **Branch Service** (`branch_service/`)
+### 2. 📋 **Catalogues Service** (`catalogues_service/`)
+- **Base de datos:** `catalogues_service_db`
+- **Responsabilidad:** Catálogos maestros (empresas, sucursales, sistemas, productos)
+- **Modelos:** Empresa, Sucursal, Sistema, Producto
+
+### 3. 🏪 **Branch Service** (`branch_service/`)
 - **Base de datos:** `branch_service_db`
-- **Responsabilidad:** Gestión de sucursales y turnos
-- **Modelos:** Sucursal, TurnoSucursal, CorteCaja
+- **Responsabilidad:** Gestión de turnos y cortes de caja
+- **Modelos:** TurnoSucursal, CorteCaja
 
-### 3. 📦 **Inventory Service** (`inventory_service/`)
+### 4. 📦 **Inventory Service** (`inventory_service/`)
 - **Base de datos:** `inventory_service_db`
-- **Responsabilidad:** Gestión de productos, stock e inventarios
-- **Modelos:** Producto, StockSucursal, ListaPrecios, InventarioLotes
+- **Responsabilidad:** Gestión de stock e inventarios
+- **Modelos:** StockSucursal, ListaPrecios, InventarioLotes
 
-### 4. 🚚 **Supplier Service** (`supplier_service/`)
+### 5. 🚚 **Supplier Service** (`supplier_service/`)
 - **Base de datos:** `supplier_service_db`
-- **Responsabilidad:** Proveedores, entradas y traspasos de mercancía
-- **Modelos:** ProveedorEmpleado, ProveedorEmpresa, ProveedorMarca, ProveedorProducto, EntradaMercancia, EntradaMercanciaDetalle, TraspasoMercancia, TraspasoMercanciaDetalle
+- **Responsabilidad:** Proveedores y sus relaciones
+- **Modelos:** ProveedorEmpleado, ProveedorEmpresa, ProveedorMarca, ProveedorProducto
 
-### 5. 💰 **Sales Service** (`sales_service/`)
+### 6. 💰 **Sales Service** (`sales_service/`)
 - **Base de datos:** `sales_service_db`
-- **Responsabilidad:** Gestión de ventas
-- **Modelos:** Venta, VentaDetalle
+- **Responsabilidad:** Gestión de ventas, entradas y traspasos de mercancía
+- **Modelos:** Venta, VentaDetalle, EntradaMercancia, EntradaMercanciaDetalle, TraspasoMercancia, TraspasoMercanciaDetalle
 
 ---
 
@@ -83,6 +88,7 @@ flask db upgrade
 
 Crear las siguientes bases de datos en PostgreSQL:
 - `auth_service_db`
+- `catalogues_service_db`
 - `branch_service_db`
 - `inventory_service_db`
 - `supplier_service_db`

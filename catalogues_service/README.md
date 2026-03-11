@@ -1,11 +1,12 @@
 # Catalogues Service
 
-Microservicio de catálogos: empresas, productos y sistemas.
+Microservicio de catálogos: empresas, productos, sistemas y sucursales.
 
 ## Modelos incluidos:
 - Empresa
 - Producto
 - Sistema
+- Sucursal
 
 ## Base de datos
 - Base de datos: `catalogues_service_db`

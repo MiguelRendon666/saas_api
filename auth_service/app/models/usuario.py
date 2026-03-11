@@ -14,7 +14,7 @@ class Usuario(BaseObject):
     
     # Foreign Keys - referencias a otros microservicios
     fkEmpresa = db.Column(db.String(36), nullable=False, index=True)
-    fkSucursal = db.Column(db.String(36), nullable=True, index=True)
+    fkSucursal = db.Column(db.String(36), nullable=False, index=True)
     fkSistema = db.Column(db.String(36), nullable=False, index=True)
     
     # Relaciones

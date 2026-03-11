@@ -1,9 +1,8 @@
 # Branch Service
 
-Microservicio de gestión de sucursales y turnos.
+Microservicio de gestión de turnos y cortes de caja.
 
 ## Modelos incluidos:
-- Sucursal
 - TurnoSucursal
 - CorteCaja
 

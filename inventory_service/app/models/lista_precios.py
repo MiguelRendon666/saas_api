@@ -5,6 +5,7 @@ class ListaPrecios(BaseObject):
     __tablename__ = 'lista_precios'
     
     # Foreign Keys - referencias a otros microservicios
+    fkEmpresa = db.Column(db.String(36), nullable=False, index=True)
     fkSucursal = db.Column(db.String(36), nullable=False, index=True)
     fkProducto = db.Column(db.String(36), nullable=False, index=True)
     fkSistema = db.Column(db.String(36), nullable=False, index=True)
@@ -21,6 +22,7 @@ class ListaPrecios(BaseObject):
     __table_args__ = (
         db.Index('ix_lista_precios_sucursal_producto', 'fkSucursal', 'fkProducto', unique=True),
         db.Index('ix_lista_precios_promocion_vigente', 'vigenciaPromocion'),
+        db.Index('ix_lista_precios_empresa', 'fkEmpresa'),
     )
     
     def __repr__(self):

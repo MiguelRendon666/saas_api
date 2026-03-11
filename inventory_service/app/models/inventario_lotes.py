@@ -5,6 +5,7 @@ class InventarioLotes(BaseObject):
     __tablename__ = 'inventario_lotes'
     
     # Foreign Keys - referencias a otros microservicios
+    fkEmpresa = db.Column(db.String(36), nullable=False, index=True)
     fkSucursal = db.Column(db.String(36), nullable=False, index=True)
     fkProducto = db.Column(db.String(36), nullable=False, index=True)
     fkEntradaMercancia = db.Column(db.String(36), nullable=False, index=True)
@@ -19,6 +20,7 @@ class InventarioLotes(BaseObject):
     # Índices
     __table_args__ = (
         db.Index('ix_inventario_lotes_sucursal_producto', 'fkSucursal', 'fkProducto'),
+        db.Index('ix_inventario_lotes_empresa', 'fkEmpresa'),
     )
     
     def __repr__(self):
