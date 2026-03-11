@@ -14,4 +14,11 @@ def create_app():
     with app.app_context():
         from app import models
     
+    # Registrar blueprints
+    from app.routes import empresa_bp, producto_bp, sistema_bp, sucursal_bp
+    app.register_blueprint(empresa_bp)
+    app.register_blueprint(producto_bp)
+    app.register_blueprint(sistema_bp)
+    app.register_blueprint(sucursal_bp)
+    
     return app
