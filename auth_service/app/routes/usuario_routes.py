@@ -1,0 +1,206 @@
+from flask import Blueprint, request, jsonify
+from app import db
+from app.models.usuario import Usuario
+from app.schemas.usuario_schema import UsuarioSchema
+from app.enums import BaseObjectEstatus
+from datetime import datetime
+
+usuario_bp = Blueprint('usuario', __name__, url_prefix='/usuario')
+
+# 1. GET /usuario/<oid> - Obtener por OID
+@usuario_bp.route('/<string:oid>', methods=['GET'])
+def get_usuario(oid):
+    """Obtiene un usuario por su OID"""
+    try:
+        usuario = Usuario.query.filter(
+            Usuario.oid == oid,
+            Usuario.estatus != BaseObjectEstatus.ELIMINADO
+        ).first()
+        
+        if not usuario:
+            return jsonify({'errors': ['Usuario no encontrado']}), 404
+        
+        return jsonify(UsuarioSchema.serialize(usuario)), 200
+    except Exception as e:
+        return jsonify({'errors': [str(e)]}), 500
+
+# 2. GET /usuario/ - Listar con paginación y filtros
+@usuario_bp.route('/', methods=['GET'])
+def get_usuarios():
+    """Obtiene listado de usuarios con paginación y filtros"""
+    try:
+        # Parámetros de paginación
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        
+        # Parámetros de filtrado
+        usuario = request.args.get('usuario', type=str)
+        nombres = request.args.get('nombres', type=str)
+        email = request.args.get('email', type=str)
+        fkEmpresa = request.args.get('fkEmpresa', type=str)
+        fkSucursal = request.args.get('fkSucursal', type=str)
+        
+        # Query base - excluir eliminados
+        query = Usuario.query.filter(Usuario.estatus != BaseObjectEstatus.ELIMINADO)
+        
+        # Aplicar filtros
+        if usuario:
+            query = query.filter(Usuario.usuario.ilike(f'%{usuario}%'))
+        if nombres:
+            query = query.filter(Usuario.nombres.ilike(f'%{nombres}%'))
+        if email:
+            query = query.filter(Usuario.email.ilike(f'%{email}%'))
+        if fkEmpresa:
+            query = query.filter(Usuario.fkEmpresa == fkEmpresa)
+        if fkSucursal:
+            query = query.filter(Usuario.fkSucursal == fkSucursal)
+        
+        # Paginación
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        return jsonify({
+            'data': UsuarioSchema.serialize_list(pagination.items),
+            'total': pagination.total,
+            'page': pagination.page,
+            'per_page': pagination.per_page,
+            'pages': pagination.pages
+        }), 200
+    except Exception as e:
+        return jsonify({'errors': [str(e)]}), 500
+
+# 3. POST /usuario/ - Crear un usuario
+@usuario_bp.route('/', methods=['POST'])
+def create_usuario():
+    """Crea un nuevo usuario"""
+    try:
+        data = request.get_json()
+        
+        # Validar datos
+        errors = UsuarioSchema.validate_create(data)
+        if errors:
+            return jsonify({'errors': errors}), 400
+        
+        # Verificar unicidad
+        if Usuario.query.filter_by(usuario=data['usuario']).first():
+            return jsonify({'errors': ['El usuario ya existe']}), 400
+        
+        # Crear usuario
+        usuario = Usuario(
+            usuario=data['usuario'],
+            contraseña=data['contraseña'],
+            apellidoPaterno=data['apellidoPaterno'],
+            apellidoMaterno=data['apellidoMaterno'],
+            nombres=data['nombres'],
+            telefono=data.get('telefono'),
+            email=data.get('email'),
+            fkEmpresa=data['fkEmpresa'],
+            fkSucursal=data['fkSucursal'],
+            fkSistema=data['fkSistema'],
+            creado_por=data.get('creado_por'),
+            estatus=BaseObjectEstatus.ACTIVO
+        )
+        
+        db.session.add(usuario)
+        db.session.commit()
+        
+        return jsonify(UsuarioSchema.serialize(usuario)), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500
+
+# 4. PUT /usuario/<oid> - Actualizar un usuario
+@usuario_bp.route('/<string:oid>', methods=['PUT'])
+def update_usuario(oid):
+    """Actualiza un usuario"""
+    try:
+        usuario = Usuario.query.filter(
+            Usuario.oid == oid,
+            Usuario.estatus != BaseObjectEstatus.ELIMINADO
+        ).first()
+        
+        if not usuario:
+            return jsonify({'errors': ['Usuario no encontrado']}), 404
+        
+        data = request.get_json()
+        
+        # Validar datos
+        errors = UsuarioSchema.validate_update(data)
+        if errors:
+            return jsonify({'errors': errors}), 400
+        
+        # Actualizar campos
+        if 'usuario' in data:
+            # Verificar unicidad si se cambia el usuario
+            existing = Usuario.query.filter(
+                Usuario.usuario == data['usuario'],
+                Usuario.oid != oid
+            ).first()
+            if existing:
+                return jsonify({'errors': ['El usuario ya existe']}), 400
+            usuario.usuario = data['usuario']
+        
+        if 'contraseña' in data:
+            usuario.contraseña = data['contraseña']
+        
+        if 'apellidoPaterno' in data:
+            usuario.apellidoPaterno = data['apellidoPaterno']
+        
+        if 'apellidoMaterno' in data:
+            usuario.apellidoMaterno = data['apellidoMaterno']
+        
+        if 'nombres' in data:
+            usuario.nombres = data['nombres']
+        
+        if 'telefono' in data:
+            usuario.telefono = data['telefono']
+        
+        if 'email' in data:
+            usuario.email = data['email']
+        
+        if 'fkEmpresa' in data:
+            usuario.fkEmpresa = data['fkEmpresa']
+        
+        if 'fkSucursal' in data:
+            usuario.fkSucursal = data['fkSucursal']
+        
+        if 'fkSistema' in data:
+            usuario.fkSistema = data['fkSistema']
+        
+        if 'editado_por' in data:
+            usuario.editado_por = data['editado_por']
+        
+        usuario.updatedAt = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify(UsuarioSchema.serialize(usuario)), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500
+
+# 5. DELETE /usuario/<oid> - Eliminar (soft delete)
+@usuario_bp.route('/<string:oid>', methods=['DELETE'])
+def delete_usuario(oid):
+    """Elimina (soft delete) un usuario"""
+    try:
+        usuario = Usuario.query.filter(
+            Usuario.oid == oid,
+            Usuario.estatus != BaseObjectEstatus.ELIMINADO
+        ).first()
+        
+        if not usuario:
+            return jsonify({'errors': ['Usuario no encontrado']}), 404
+        
+        data = request.get_json()
+        
+        # Soft delete
+        usuario.estatus = BaseObjectEstatus.ELIMINADO
+        usuario.editado_por = data.get('editado_por') if data else None
+        usuario.updatedAt = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({'message': 'Usuario eliminado exitosamente'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500

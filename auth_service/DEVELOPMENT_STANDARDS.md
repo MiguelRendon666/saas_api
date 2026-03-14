@@ -814,41 +814,41 @@ PyMySQL==1.1.0
 Al crear un nuevo microservicio, verificar:
 
 ### Estructura
-- [ ] Estructura de carpetas completa (app/, models/, routes/, schemas/, enums/)
-- [ ] `__init__.py` en cada carpeta
+- [x] Estructura de carpetas completa (app/, models/, routes/, schemas/, enums/)
+- [x] `__init__.py` en cada carpeta
 
 ### Modelos
-- [ ] Heredan de BaseObject
-- [ ] Tienen `__tablename__` definido
-- [ ] Tienen `__repr__` implementado
-- [ ] Índices en campos de búsqueda
-- [ ] Relaciones definidas correctamente
+- [x] Heredan de BaseObject
+- [x] Tienen `__tablename__` definido
+- [x] Tienen `__repr__` implementado
+- [x] Índices en campos de búsqueda
+- [x] Relaciones definidas correctamente
 
 ### Schemas
-- [ ] Heredan de BaseSchema
-- [ ] Implementan `serialize()`
-- [ ] Implementan `serialize_list()`
-- [ ] Implementan `validate_create()`
-- [ ] Implementan `validate_update()`
+- [x] Heredan de BaseSchema
+- [x] Implementan `serialize()`
+- [x] Implementan `serialize_list()`
+- [x] Implementan `validate_create()`
+- [x] Implementan `validate_update()`
 
 ### Rutas
-- [ ] 7 endpoints estándar implementados
-- [ ] Blueprint registrado en `app/__init__.py`
-- [ ] Manejo de errores con try/except
-- [ ] Rollback en caso de error
-- [ ] Filtran registros ELIMINADOS
-- [ ] Validación de datos
+- [x] 7 endpoints estándar implementados
+- [x] Blueprint registrado en `app/__init__.py`
+- [x] Manejo de errores con try/except
+- [x] Rollback en caso de error
+- [x] Filtran registros ELIMINADOS
+- [x] Validación de datos
 
 ### Configuración
-- [ ] `config.py` con todas las secciones
-- [ ] `.env.example` actualizado
-- [ ] `requirements.txt` con dependencias correctas
-- [ ] `run.py` con factory pattern
+- [x] `config.py` con todas las secciones
+- [x] `.env.example` actualizado
+- [x] `requirements.txt` con dependencias correctas
+- [x] `run.py` con factory pattern
 
 ### Documentación
-- [ ] README.md con instalación y uso
-- [ ] Documentación de endpoints
-- [ ] Ejemplos de API (opcional)
+- [x] README.md con instalación y uso
+- [x] Documentación de endpoints
+- [x] Ejemplos de API (opcional)
 
 ---
 

@@ -14,4 +14,12 @@ def create_app():
     with app.app_context():
         from app import models
     
+    # Registrar blueprints
+    from app.routes import usuario_bp, rol_bp, permiso_bp, permiso_asignado_bp, usuario_rol_bp
+    app.register_blueprint(usuario_bp)
+    app.register_blueprint(rol_bp)
+    app.register_blueprint(permiso_bp)
+    app.register_blueprint(permiso_asignado_bp)
+    app.register_blueprint(usuario_rol_bp)
+    
     return app
