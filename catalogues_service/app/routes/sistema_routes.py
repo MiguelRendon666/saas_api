@@ -18,11 +18,11 @@ def get_sistema(oid):
         ).first()
         
         if not sistema:
-            return jsonify({'error': 'Sistema no encontrado'}), 404
+            return jsonify({'errors': ['Sistema no encontrado']}), 404
         
         return jsonify(SistemaSchema.serialize(sistema)), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sistema_bp.route('/', methods=['GET'])
@@ -57,7 +57,7 @@ def get_sistemas():
             'pages': pagination.pages
         }), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sistema_bp.route('/', methods=['POST'])
@@ -73,11 +73,11 @@ def create_sistema():
         
         # Verificar que no exista la clave
         if Sistema.query.filter_by(clave=data['clave']).first():
-            return jsonify({'error': 'La clave ya existe'}), 400
+            return jsonify({'errors': ['La clave ya existe']}), 400
         
         # Verificar que no exista el api_key
         if Sistema.query.filter_by(api_key=data['api_key']).first():
-            return jsonify({'error': 'El api_key ya existe'}), 400
+            return jsonify({'errors': ['El api_key ya existe']}), 400
         
         # Crear sistema
         sistema = Sistema(
@@ -95,7 +95,7 @@ def create_sistema():
         return jsonify(SistemaSchema.serialize(sistema)), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sistema_bp.route('/many', methods=['POST'])
@@ -105,7 +105,7 @@ def create_many_sistemas():
         data = request.get_json()
         
         if not isinstance(data, list):
-            return jsonify({'error': 'Se esperaba una lista de sistemas'}), 400
+            return jsonify({'errors': ['Se esperaba una lista de sistemas']}), 400
         
         sistemas_creados = []
         errors = []
@@ -154,7 +154,7 @@ def create_many_sistemas():
         return jsonify(response), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sistema_bp.route('/<string:oid>', methods=['PUT'])
@@ -167,7 +167,7 @@ def update_sistema(oid):
         ).first()
         
         if not sistema:
-            return jsonify({'error': 'Sistema no encontrado'}), 404
+            return jsonify({'errors': ['Sistema no encontrado']}), 404
         
         data = request.get_json()
         
@@ -184,7 +184,7 @@ def update_sistema(oid):
                 Sistema.oid != oid
             ).first()
             if existing:
-                return jsonify({'error': 'La clave ya existe'}), 400
+                return jsonify({'errors': ['La clave ya existe']}), 400
             sistema.clave = data['clave']
         
         if 'api_key' in data:
@@ -194,7 +194,7 @@ def update_sistema(oid):
                 Sistema.oid != oid
             ).first()
             if existing:
-                return jsonify({'error': 'El api_key ya existe'}), 400
+                return jsonify({'errors': ['El api_key ya existe']}), 400
             sistema.api_key = data['api_key']
         
         if 'nombre' in data:
@@ -211,7 +211,7 @@ def update_sistema(oid):
         return jsonify(SistemaSchema.serialize(sistema)), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sistema_bp.route('/many', methods=['PUT'])
@@ -221,7 +221,7 @@ def update_many_sistemas():
         data = request.get_json()
         
         if not isinstance(data, list):
-            return jsonify({'error': 'Se esperaba una lista de sistemas'}), 400
+            return jsonify({'errors': ['Se esperaba una lista de sistemas']}), 400
         
         sistemas_actualizados = []
         errors = []
@@ -285,7 +285,7 @@ def update_many_sistemas():
         return jsonify(response), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sistema_bp.route('/<string:oid>', methods=['DELETE'])
@@ -298,7 +298,7 @@ def delete_sistema(oid):
         ).first()
         
         if not sistema:
-            return jsonify({'error': 'Sistema no encontrado'}), 404
+            return jsonify({'errors': ['Sistema no encontrado']}), 404
         
         # Obtener el usuario que elimina (si se envía)
         data = request.get_json() or {}
@@ -313,4 +313,4 @@ def delete_sistema(oid):
         return jsonify({'message': 'Sistema eliminado exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500

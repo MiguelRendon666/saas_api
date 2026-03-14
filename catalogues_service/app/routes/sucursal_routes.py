@@ -18,11 +18,11 @@ def get_sucursal(oid):
         ).first()
         
         if not sucursal:
-            return jsonify({'error': 'Sucursal no encontrada'}), 404
+            return jsonify({'errors': ['Sucursal no encontrada']}), 404
         
         return jsonify(SucursalSchema.serialize(sucursal)), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sucursal_bp.route('/', methods=['GET'])
@@ -60,7 +60,7 @@ def get_sucursales():
             'pages': pagination.pages
         }), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sucursal_bp.route('/', methods=['POST'])
@@ -76,7 +76,7 @@ def create_sucursal():
         
         # Verificar que no exista la clave
         if Sucursal.query.filter_by(clave=data['clave']).first():
-            return jsonify({'error': 'La clave ya existe'}), 400
+            return jsonify({'errors': ['La clave ya existe']}), 400
         
         # Crear sucursal
         sucursal = Sucursal(
@@ -96,7 +96,7 @@ def create_sucursal():
         return jsonify(SucursalSchema.serialize(sucursal)), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sucursal_bp.route('/many', methods=['POST'])
@@ -106,7 +106,7 @@ def create_many_sucursales():
         data = request.get_json()
         
         if not isinstance(data, list):
-            return jsonify({'error': 'Se esperaba una lista de sucursales'}), 400
+            return jsonify({'errors': ['Se esperaba una lista de sucursales']}), 400
         
         sucursales_creadas = []
         errors = []
@@ -152,7 +152,7 @@ def create_many_sucursales():
         return jsonify(response), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sucursal_bp.route('/<string:oid>', methods=['PUT'])
@@ -165,7 +165,7 @@ def update_sucursal(oid):
         ).first()
         
         if not sucursal:
-            return jsonify({'error': 'Sucursal no encontrada'}), 404
+            return jsonify({'errors': ['Sucursal no encontrada']}), 404
         
         data = request.get_json()
         
@@ -182,7 +182,7 @@ def update_sucursal(oid):
                 Sucursal.oid != oid
             ).first()
             if existing:
-                return jsonify({'error': 'La clave ya existe'}), 400
+                return jsonify({'errors': ['La clave ya existe']}), 400
             sucursal.clave = data['clave']
         
         if 'nombre' in data:
@@ -205,7 +205,7 @@ def update_sucursal(oid):
         return jsonify(SucursalSchema.serialize(sucursal)), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sucursal_bp.route('/many', methods=['PUT'])
@@ -215,7 +215,7 @@ def update_many_sucursales():
         data = request.get_json()
         
         if not isinstance(data, list):
-            return jsonify({'error': 'Se esperaba una lista de sucursales'}), 400
+            return jsonify({'errors': ['Se esperaba una lista de sucursales']}), 400
         
         sucursales_actualizadas = []
         errors = []
@@ -275,7 +275,7 @@ def update_many_sucursales():
         return jsonify(response), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @sucursal_bp.route('/<string:oid>', methods=['DELETE'])
@@ -288,7 +288,7 @@ def delete_sucursal(oid):
         ).first()
         
         if not sucursal:
-            return jsonify({'error': 'Sucursal no encontrada'}), 404
+            return jsonify({'errors': ['Sucursal no encontrada']}), 404
         
         # Obtener el usuario que elimina (si se envía)
         data = request.get_json() or {}
@@ -303,4 +303,4 @@ def delete_sucursal(oid):
         return jsonify({'message': 'Sucursal eliminada exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500

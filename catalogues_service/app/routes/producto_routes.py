@@ -18,11 +18,11 @@ def get_producto(oid):
         ).first()
         
         if not producto:
-            return jsonify({'error': 'Producto no encontrado'}), 404
+            return jsonify({'errors': ['Producto no encontrado']}), 404
         
         return jsonify(ProductoSchema.serialize(producto)), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @producto_bp.route('/', methods=['GET'])
@@ -63,7 +63,7 @@ def get_productos():
             'pages': pagination.pages
         }), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @producto_bp.route('/', methods=['POST'])
@@ -79,12 +79,12 @@ def create_producto():
         
         # Verificar que no exista la clave
         if Producto.query.filter_by(clave=data['clave']).first():
-            return jsonify({'error': 'La clave ya existe'}), 400
+            return jsonify({'errors': ['La clave ya existe']}), 400
         
         # Verificar que no exista el código de barras si se proporciona
         if data.get('codigo_barras'):
             if Producto.query.filter_by(codigo_barras=data['codigo_barras']).first():
-                return jsonify({'error': 'El código de barras ya existe'}), 400
+                return jsonify({'errors': ['El código de barras ya existe']}), 400
         
         # Convertir unidadMedida a enum
         unidad_medida = UnidadMedida[data['unidadMedida'].upper()] if isinstance(data['unidadMedida'], str) else data['unidadMedida']
@@ -107,7 +107,7 @@ def create_producto():
         return jsonify(ProductoSchema.serialize(producto)), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @producto_bp.route('/many', methods=['POST'])
@@ -117,7 +117,7 @@ def create_many_productos():
         data = request.get_json()
         
         if not isinstance(data, list):
-            return jsonify({'error': 'Se esperaba una lista de productos'}), 400
+            return jsonify({'errors': ['Se esperaba una lista de productos']}), 400
         
         productos_creados = []
         errors = []
@@ -172,7 +172,7 @@ def create_many_productos():
         return jsonify(response), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @producto_bp.route('/<string:oid>', methods=['PUT'])
@@ -185,7 +185,7 @@ def update_producto(oid):
         ).first()
         
         if not producto:
-            return jsonify({'error': 'Producto no encontrado'}), 404
+            return jsonify({'errors': ['Producto no encontrado']}), 404
         
         data = request.get_json()
         
@@ -202,7 +202,7 @@ def update_producto(oid):
                 Producto.oid != oid
             ).first()
             if existing:
-                return jsonify({'error': 'La clave ya existe'}), 400
+                return jsonify({'errors': ['La clave ya existe']}), 400
             producto.clave = data['clave']
         
         if 'codigo_barras' in data:
@@ -213,7 +213,7 @@ def update_producto(oid):
                     Producto.oid != oid
                 ).first()
                 if existing:
-                    return jsonify({'error': 'El código de barras ya existe'}), 400
+                    return jsonify({'errors': ['El código de barras ya existe']}), 400
             producto.codigo_barras = data['codigo_barras']
         
         if 'nombre' in data:
@@ -234,7 +234,7 @@ def update_producto(oid):
         return jsonify(ProductoSchema.serialize(producto)), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @producto_bp.route('/many', methods=['PUT'])
@@ -244,7 +244,7 @@ def update_many_productos():
         data = request.get_json()
         
         if not isinstance(data, list):
-            return jsonify({'error': 'Se esperaba una lista de productos'}), 400
+            return jsonify({'errors': ['Se esperaba una lista de productos']}), 400
         
         productos_actualizados = []
         errors = []
@@ -313,7 +313,7 @@ def update_many_productos():
         return jsonify(response), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
 
 
 @producto_bp.route('/<string:oid>', methods=['DELETE'])
@@ -326,7 +326,7 @@ def delete_producto(oid):
         ).first()
         
         if not producto:
-            return jsonify({'error': 'Producto no encontrado'}), 404
+            return jsonify({'errors': ['Producto no encontrado']}), 404
         
         # Obtener el usuario que elimina (si se envía)
         data = request.get_json() or {}
@@ -341,4 +341,4 @@ def delete_producto(oid):
         return jsonify({'message': 'Producto eliminado exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'errors': [str(e)]}), 500
