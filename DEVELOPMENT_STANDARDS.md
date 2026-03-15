@@ -23,10 +23,13 @@ Todos los microservicios deben seguir esta estructura:
 │   ├── routes/
 │   │   ├── __init__.py
 │   │   └── {entity}_routes.py
-│   └── schemas/
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   ├── base_schema.py
+│   │   └── {entity}_schema.py
+│   └── external_{service_name}/        # Referencias a microservicios externos
 │       ├── __init__.py
-│       ├── base_schema.py
-│       └── {entity}_schema.py
+│       └── {entity}_external.py        # Wrapper GET-only para microservicio externo
 ├── config.py                    # Configuración centralizada
 ├── run.py                       # Punto de entrada de la aplicación
 ├── requirements.txt             # Dependencias Python
@@ -231,6 +234,92 @@ class BaseSchema:
 - Siempre incluir: `serialize`, `serialize_list`, `validate_create`, `validate_update`
 - Heredar de `BaseSchema` y usar `serialize_base`
 - Retornar lista de errores (strings) en validación
+
+### 2.1. Resolución de Referencias FK en Serialización
+
+Cuando un modelo tiene columnas FK (`fk*`) que apuntan a objetos de otras tablas, los schemas **deben** resolver y serializar esos objetos completos en la respuesta, no solo exponer el ID.
+
+**Reglas:**
+- **FK mismo microservicio**: utilizar el `relationship` de SQLAlchemy o hacer una consulta directa (la columna FK ya está indexada). Exponer el objeto serializado completo.
+- **FK microservicio externo**: llamar al módulo `external_` correspondiente usando `get_by_oid`.
+- Nombrar la propiedad resuelta sin el prefijo `fk` y en minúsculas: `fkEmpresa` → `empresa`, `fkRol` → `rol`.
+- Si la FK es `nullable` y no tiene valor, devolver `null` para esa propiedad.
+- Las columnas FK originales (`fkEmpresa`, `fkRol`) **también** se siguen incluyendo para compatibilidad.
+
+**Ejemplo - FK mismo microservicio:**
+```python
+from app.schemas.empresa_schema import EmpresaSchema
+
+@staticmethod
+def serialize(sucursal):
+    data = BaseSchema.serialize_base(sucursal)
+    data.update({
+        'clave': sucursal.clave,
+        'nombre': sucursal.nombre,
+        'fkEmpresa': sucursal.fkEmpresa,
+        # Objeto FK resuelto del mismo microservicio (via relationship de SQLAlchemy)
+        'empresa': EmpresaSchema.serialize(sucursal.empresa) if sucursal.empresa else None,
+    })
+    return data
+```
+
+**Ejemplo - FK microservicio externo:**
+```python
+from app.external_catalogues.empresa_external import EmpresaExternal
+
+@staticmethod
+def serialize(usuario):
+    data = BaseSchema.serialize_base(usuario)
+    data.update({
+        'nombre': usuario.nombre,
+        'fkEmpresa': usuario.fkEmpresa,
+        # Objeto FK resuelto de otro microservicio via módulo external_
+        'empresa': EmpresaExternal.get_by_oid(usuario.fkEmpresa) if usuario.fkEmpresa else None,
+    })
+    return data
+```
+
+### 2.2. Tablas Intermedias y Listas de Objetos Relacionados
+
+Las tablas intermedias (junction tables) y cualquier entidad que maneje colecciones de referencias FK **deben** incluir los objetos reales resueltos en su serialización, nunca listas de IDs.
+
+**Reglas:**
+- Exponer listas de objetos completos, no listas de OIDs.
+- Nombrar la propiedad en plural del objeto referenciado (ej: `roles`, `permisos`, `sucursales`).
+- Si los objetos vienen de otro microservicio, utilizar `get_by_oid_list` del módulo `external_` para hacer una sola llamada eficiente con todos los OIDs en batch.
+- Nunca devolver únicamente listas de IDs cuando existen objetos resolvibles.
+
+**Ejemplo - tabla intermedia con objetos resueltos (mismo microservicio):**
+```python
+@staticmethod
+def serialize(usuario_rol):
+    data = BaseSchema.serialize_base(usuario_rol)
+    data.update({
+        'fkUsuario': usuario_rol.fkUsuario,
+        'fkRol': usuario_rol.fkRol,
+        # Objetos reales resueltos via relationships
+        'usuario': UsuarioSchema.serialize(usuario_rol.usuario) if usuario_rol.usuario else None,
+        'rol': RolSchema.serialize(usuario_rol.rol) if usuario_rol.rol else None,
+    })
+    return data
+```
+
+**Ejemplo - entidad con lista de referencias a microservicio externo (batch):**
+```python
+from app.external_catalogues.sucursal_external import SucursalExternal
+
+@staticmethod
+def serialize(usuario):
+    data = BaseSchema.serialize_base(usuario)
+    # Recolectar todos los OIDs y hacer una sola llamada batch
+    oid_sucursales = [us.fkSucursal for us in usuario.usuario_sucursales if us.fkSucursal]
+    sucursales = SucursalExternal.get_by_oid_list(oid_sucursales) if oid_sucursales else []
+    data.update({
+        'nombre': usuario.nombre,
+        'sucursales': sucursales,  # Lista de objetos completos, no IDs
+    })
+    return data
+```
 
 ### 3. Rutas (routes/)
 
@@ -513,6 +602,30 @@ def delete_entity(oid):
     except Exception as e:
         db.session.rollback()
         return jsonify({'errors': [str(e)]}), 500
+
+# 8. POST /{entity}/list - Obtener lista específica por OIDs
+@entity_bp.route('/list', methods=['POST'])
+def get_entity_list():
+    """Obtiene una lista específica de entidades a partir de un arreglo de OIDs"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'oid_list' not in data:
+            return jsonify({'errors': ['oid_list es requerido']}), 400
+        
+        oid_list = data.get('oid_list', [])
+        
+        if not isinstance(oid_list, list):
+            return jsonify({'errors': ['oid_list debe ser un arreglo']}), 400
+        
+        entities = Entity.query.filter(
+            Entity.oid.in_(oid_list),
+            Entity.estatus != BaseObjectEstatus.ELIMINADO
+        ).all()
+        
+        return jsonify(EntitySchema.serialize_list(entities)), 200
+    except Exception as e:
+        return jsonify({'errors': [str(e)]}), 500
 ```
 
 **Endpoints obligatorios:**
@@ -523,6 +636,7 @@ def delete_entity(oid):
 5. `PUT /{entity}/<oid>` - Actualizar uno
 6. `PUT /{entity}/many` - Actualizar múltiples
 7. `DELETE /{entity}/<oid>` - Eliminación lógica
+8. `POST /{entity}/list` - Obtener lista específica por OIDs
 
 **Reglas de rutas:**
 - Siempre usar Blueprint con prefijo de entidad
@@ -580,6 +694,119 @@ if __name__ == '__main__':
         host=Config.HOST,
         port=Config.PORT
     )
+```
+
+---
+
+## 🌐 Módulos Externos (external_{service_name}/)
+
+Cuando un microservicio necesita consumir datos de otro microservicio (por ejemplo, `auth_service` consulta `Empresa` y `Sucursal` del `catalogues_service`), se crean módulos proxy dentro de una carpeta `external_{service_name}/` dentro de `app/`.
+
+### Propósito
+
+- Centralizar todas las llamadas HTTP a microservicios externos en un solo lugar.
+- Proveer una interfaz limpia y reutilizable para que los schemas resuelvan FKs externas.
+- Solo implementar operaciones de **lectura** (GET). Las operaciones de escritura son **deuda técnica**.
+
+### Estructura
+
+```
+app/
+└── external_{service_name}/
+    ├── __init__.py
+    └── {entity}_external.py
+```
+
+Se crea una carpeta `external_` por cada microservicio externo referenciado, y un archivo por cada entidad que se consulta:
+
+```
+app/
+├── external_catalogues/
+│   ├── __init__.py
+│   ├── empresa_external.py
+│   └── sucursal_external.py
+└── external_auth/
+    ├── __init__.py
+    └── usuario_external.py
+```
+
+### Implementación
+
+Cada archivo `{entity}_external.py` contiene una clase con tres métodos estáticos de solo lectura:
+
+```python
+import requests
+from config import Config
+
+class EmpresaExternal:
+    """Wrapper GET-only para Empresa del catalogues_service.
+    
+    TODO: Deuda técnica - implementar create/update cuando se configure
+          autenticación entre servicios (service tokens / API keys).
+    """
+    
+    BASE_URL = Config.CATALOGUES_SERVICE_URL
+    
+    @staticmethod
+    def get_by_oid(oid: str) -> dict | None:
+        """Obtiene una empresa por su OID"""
+        try:
+            response = requests.get(f'{EmpresaExternal.BASE_URL}/empresa/{oid}')
+            if response.status_code == 200:
+                return response.json()
+            return None
+        except Exception:
+            return None
+    
+    @staticmethod
+    def get_list(page: int = 1, per_page: int = 10, **filters) -> dict:
+        """Obtiene el listado paginado de empresas"""
+        try:
+            params = {'page': page, 'per_page': per_page, **filters}
+            response = requests.get(f'{EmpresaExternal.BASE_URL}/empresa/', params=params)
+            if response.status_code == 200:
+                return response.json()
+            return {'data': [], 'total': 0, 'page': page, 'per_page': per_page, 'pages': 0}
+        except Exception:
+            return {'data': [], 'total': 0, 'page': page, 'per_page': per_page, 'pages': 0}
+    
+    @staticmethod
+    def get_by_oid_list(oid_list: list) -> list:
+        """Obtiene una lista específica de empresas por sus OIDs"""
+        try:
+            response = requests.post(
+                f'{EmpresaExternal.BASE_URL}/empresa/list',
+                json={'oid_list': oid_list}
+            )
+            if response.status_code == 200:
+                return response.json()
+            return []
+        except Exception:
+            return []
+    
+    # TODO: Deuda técnica - habilitar cuando se configure autenticación entre servicios
+    # @staticmethod
+    # def create(data: dict) -> dict | None: ...
+    #
+    # @staticmethod
+    # def update(oid: str, data: dict) -> dict | None: ...
+```
+
+### Reglas
+
+- **Solo lectura obligatorio**: los módulos `external_` solo implementan `get_by_oid`, `get_list` y `get_by_oid_list`.
+- **POST y PUT son deuda técnica**: incluir el esqueleto de esos métodos comentado con `# TODO: Deuda técnica`.
+- **Fallos silenciosos**: en caso de error de red o respuesta no 200, retornar `None` (objetos únicos) o `[]` / dict vacío (listas) — el microservicio no debe caerse por dependencias externas.
+- **Un archivo por entidad externa**: si se necesitan `Empresa` y `Sucursal` del mismo servicio, crear `empresa_external.py` y `sucursal_external.py` por separado.
+- **Usar `Config`** para las URLs base, nunca hardcodear direcciones.
+- Agregar `requests` a `requirements.txt` si no está ya presente.
+
+### Dependencia adicional
+
+Agregar al `requirements.txt` del microservicio que use módulos `external_`:
+
+```txt
+requests==2.32.3
 ```
 
 ---
@@ -816,6 +1043,7 @@ Al crear un nuevo microservicio, verificar:
 ### Estructura
 - [ ] Estructura de carpetas completa (app/, models/, routes/, schemas/, enums/)
 - [ ] `__init__.py` en cada carpeta
+- [ ] Carpetas `external_{service_name}/` creadas por cada microservicio externo referenciado
 
 ### Modelos
 - [ ] Heredan de BaseObject
@@ -830,14 +1058,24 @@ Al crear un nuevo microservicio, verificar:
 - [ ] Implementan `serialize_list()`
 - [ ] Implementan `validate_create()`
 - [ ] Implementan `validate_update()`
+- [ ] FKs al mismo microservicio resueltas como objetos completos (via relationships)
+- [ ] FKs a microservicios externos resueltas via módulo `external_`
+- [ ] Tablas intermedias devuelven objetos reales (no listas de IDs)
 
 ### Rutas
-- [ ] 7 endpoints estándar implementados
+- [ ] 8 endpoints estándar implementados (incluye `POST /list`)
 - [ ] Blueprint registrado en `app/__init__.py`
 - [ ] Manejo de errores con try/except
 - [ ] Rollback en caso de error
 - [ ] Filtran registros ELIMINADOS
 - [ ] Validación de datos
+
+### Módulos Externos (external_)
+- [ ] Carpeta `external_{service_name}/` creada por cada servicio externo referenciado
+- [ ] `__init__.py` en cada carpeta `external_`
+- [ ] Clase wrapper con métodos: `get_by_oid`, `get_list`, `get_by_oid_list`
+- [ ] POST y PUT comentados como deuda técnica (`# TODO`)
+- [ ] `requests` agregado a `requirements.txt`
 
 ### Configuración
 - [ ] `config.py` con todas las secciones
@@ -864,29 +1102,39 @@ Al crear un nuevo microservicio, verificar:
    - Heredar de BaseObject
    - Definir relaciones
 
-3. **Crear schemas**
+3. **Crear módulos externos (si aplica)**
+   - Identificar columnas FK que apuntan a otros microservicios
+   - Crear carpeta `external_{service_name}/` por cada servicio externo referenciado
+   - Implementar clase wrapper con `get_by_oid`, `get_list`, `get_by_oid_list`
+   - Dejar POST/PUT comentados como deuda técnica
+   - Agregar `requests` a `requirements.txt`
+
+4. **Crear schemas**
    - Implementar serialización
+   - Resolver FKs al mismo microservicio via relationships de SQLAlchemy
+   - Resolver FKs externas via módulos `external_` (llamadas batch con `get_by_oid_list`)
+   - Serializar objetos completos en tablas intermedias (no IDs)
    - Implementar validación
 
-4. **Desarrollar rutas**
+5. **Desarrollar rutas**
    - Crear Blueprint
-   - Implementar 7 endpoints estándar
+   - Implementar 8 endpoints estándar (incluye `POST /list`)
    - Manejar errores
 
-5. **Registrar Blueprint**
+6. **Registrar Blueprint**
    - Importar en `app/__init__.py`
    - Registrar con `register_blueprint()`
 
-6. **Configurar**
+7. **Configurar**
    - Actualizar `config.py`
    - Actualizar `.env.example`
    - Verificar puerto
 
-7. **Documentar**
+8. **Documentar**
    - README.md
    - Ejemplos de uso
 
-8. **Probar**
+9. **Probar**
    - Crear tablas (`db.create_all()`)
    - Probar endpoints
    - Verificar respuestas
