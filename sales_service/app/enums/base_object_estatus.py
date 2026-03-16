@@ -1,7 +1,7 @@
-import enum
+from enum import Enum
 
-class BaseObjectEstatus(enum.Enum):
-    ACTIVO = "Activo"
-    INACTIVO = "Inactivo"
-    ELIMINADO = "Eliminado"
+class BaseObjectEstatus(str, Enum):
+    ACTIVO = "ACTIVO"
+    INACTIVO = "INACTIVO"
+    ELIMINADO = "ELIMINADO"
     CANCELADO = "Cancelado"

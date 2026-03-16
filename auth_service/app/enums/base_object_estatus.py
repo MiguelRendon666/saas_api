@@ -1,6 +1,6 @@
 from enum import Enum
 
 class BaseObjectEstatus(str, Enum):
-    ACTIVO = "Activo"
-    INACTIVO = "Inactivo"
-    ELIMINADO = "Eliminado"
+    ACTIVO = "ACTIVO"
+    INACTIVO = "INACTIVO"
+    ELIMINADO = "ELIMINADO"

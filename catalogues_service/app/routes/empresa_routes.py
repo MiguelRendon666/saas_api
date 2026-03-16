@@ -238,6 +238,12 @@ def update_many_empresas():
                 errors.append({'index': idx, 'errors': ['Empresa no encontrada']})
                 continue
             
+            # Validar datos
+            validation_errors = EmpresaSchema.validate_update(item)
+            if validation_errors:
+                errors.append({'index': idx, 'errors': validation_errors})
+                continue
+            
             # Actualizar campos
             if 'clave' in item:
                 existing = Empresa.query.filter(
@@ -309,4 +315,28 @@ def delete_empresa(oid):
         return jsonify({'message': 'Empresa eliminada exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500
+
+
+@empresa_bp.route('/list', methods=['POST'])
+def get_empresa_list():
+    """Obtiene una lista específica de empresas a partir de un arreglo de OIDs"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'oid_list' not in data:
+            return jsonify({'errors': ['oid_list es requerido']}), 400
+        
+        oid_list = data.get('oid_list', [])
+        
+        if not isinstance(oid_list, list):
+            return jsonify({'errors': ['oid_list debe ser un arreglo']}), 400
+        
+        empresas = Empresa.query.filter(
+            Empresa.oid.in_(oid_list),
+            Empresa.estatus != BaseObjectEstatus.ELIMINADO
+        ).all()
+        
+        return jsonify(EmpresaSchema.serialize_list(empresas)), 200
+    except Exception as e:
         return jsonify({'errors': [str(e)]}), 500

@@ -1,8 +1,8 @@
-import enum
+from enum import Enum
 
-class UnidadMedida(enum.Enum):
-    GRAMO = "gramo"
-    KILOGRAMO = "kilogramo"
-    LITRO = "litro"
-    MILILITRO = "mililitro"
-    PIEZA = "pieza"
+class UnidadMedida(str, Enum):
+    GRAMO = "GRAMO"
+    KILOGRAMO = "KILOGRAMO"
+    LITRO = "LITRO"
+    MILILITRO = "MILILITRO"
+    PIEZA = "PIEZA"

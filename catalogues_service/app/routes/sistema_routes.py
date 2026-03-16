@@ -240,6 +240,12 @@ def update_many_sistemas():
                 errors.append({'index': idx, 'errors': ['Sistema no encontrado']})
                 continue
             
+            # Validar datos
+            validation_errors = SistemaSchema.validate_update(item)
+            if validation_errors:
+                errors.append({'index': idx, 'errors': validation_errors})
+                continue
+            
             # Actualizar campos
             if 'clave' in item:
                 existing = Sistema.query.filter(
@@ -313,4 +319,28 @@ def delete_sistema(oid):
         return jsonify({'message': 'Sistema eliminado exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500
+
+
+@sistema_bp.route('/list', methods=['POST'])
+def get_sistema_list():
+    """Obtiene una lista específica de sistemas a partir de un arreglo de OIDs"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'oid_list' not in data:
+            return jsonify({'errors': ['oid_list es requerido']}), 400
+        
+        oid_list = data.get('oid_list', [])
+        
+        if not isinstance(oid_list, list):
+            return jsonify({'errors': ['oid_list debe ser un arreglo']}), 400
+        
+        sistemas = Sistema.query.filter(
+            Sistema.oid.in_(oid_list),
+            Sistema.estatus != BaseObjectEstatus.ELIMINADO
+        ).all()
+        
+        return jsonify(SistemaSchema.serialize_list(sistemas)), 200
+    except Exception as e:
         return jsonify({'errors': [str(e)]}), 500

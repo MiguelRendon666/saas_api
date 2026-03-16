@@ -1,4 +1,5 @@
 from .base_schema import BaseSchema
+from .empresa_schema import EmpresaSchema
 
 
 class SucursalSchema(BaseSchema):
@@ -14,7 +15,8 @@ class SucursalSchema(BaseSchema):
             'folio': sucursal.folio,
             'direccion': sucursal.direccion,
             'telefono': sucursal.telefono,
-            'fkEmpresa': sucursal.fkEmpresa
+            'fkEmpresa': sucursal.fkEmpresa,
+            'empresa': EmpresaSchema.serialize(sucursal.empresa) if sucursal.empresa else None,
         })
         return data
     

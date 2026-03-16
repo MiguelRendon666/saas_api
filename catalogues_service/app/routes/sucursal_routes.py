@@ -234,6 +234,12 @@ def update_many_sucursales():
                 errors.append({'index': idx, 'errors': ['Sucursal no encontrada']})
                 continue
             
+            # Validar datos
+            validation_errors = SucursalSchema.validate_update(item)
+            if validation_errors:
+                errors.append({'index': idx, 'errors': validation_errors})
+                continue
+            
             # Actualizar campos
             if 'clave' in item:
                 existing = Sucursal.query.filter(
@@ -303,4 +309,28 @@ def delete_sucursal(oid):
         return jsonify({'message': 'Sucursal eliminada exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500
+
+
+@sucursal_bp.route('/list', methods=['POST'])
+def get_sucursal_list():
+    """Obtiene una lista específica de sucursales a partir de un arreglo de OIDs"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'oid_list' not in data:
+            return jsonify({'errors': ['oid_list es requerido']}), 400
+        
+        oid_list = data.get('oid_list', [])
+        
+        if not isinstance(oid_list, list):
+            return jsonify({'errors': ['oid_list debe ser un arreglo']}), 400
+        
+        sucursales = Sucursal.query.filter(
+            Sucursal.oid.in_(oid_list),
+            Sucursal.estatus != BaseObjectEstatus.ELIMINADO
+        ).all()
+        
+        return jsonify(SucursalSchema.serialize_list(sucursales)), 200
+    except Exception as e:
         return jsonify({'errors': [str(e)]}), 500

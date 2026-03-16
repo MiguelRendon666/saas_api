@@ -95,15 +95,49 @@ class Empresa(BaseContactoObject):
 - `editado_por`: Usuario que editó el registro (String 36, nullable)
 - `estatus`: Estado del registro (Enum: ACTIVO, INACTIVO, ELIMINADO)
 
-### 2. BaseObjectEstatus - Enum de Estados
+### 2. Enums - Convención General
+
+Todos los enums del proyecto siguen dos reglas obligatorias:
+
+1. **Heredar de `(str, Enum)`** — el valor del enum es directamente un `str`, por lo que `jsonify()` lo serializa sin encoder personalizado. Un `enum.Enum` puro lanza `TypeError` al intentar serializar a JSON.
+2. **Valores en UPPERCASE idénticos al nombre del miembro** — elimina la asimetría cognitiva de recordar que `ACTIVO` almacena `"Activo"`. Con `ACTIVO = "ACTIVO"` el nombre y el valor son idénticos, los errores de comparación por case desaparecen y el JSON devuelto es inequívocamente un código de API, no un label de presentación.
+
+```python
+# ✅ Correcto
+from enum import Enum
+
+class BaseObjectEstatus(str, Enum):
+    ACTIVO = "ACTIVO"
+    INACTIVO = "INACTIVO"
+    ELIMINADO = "ELIMINADO"
+
+class UnidadMedida(str, Enum):
+    GRAMO = "GRAMO"
+    KILOGRAMO = "KILOGRAMO"
+    LITRO = "LITRO"
+    MILILITRO = "MILILITRO"
+    PIEZA = "PIEZA"
+
+# ❌ Incorrecto — plain enum.Enum no serializa a JSON
+class BaseObjectEstatus(enum.Enum):
+    ACTIVO = "Activo"   # ❌ valor distinto al nombre crea asimetría
+```
+
+**Reglas:**
+- Siempre `from enum import Enum` (no `import enum`)
+- Siempre `class MiEnum(str, Enum)`
+- Nombre del miembro == valor (ambos UPPER_SNAKE_CASE)
+- Nunca mezclar estilos de valor dentro del mismo enum
+
+### 2.1. BaseObjectEstatus
 
 ```python
 from enum import Enum
 
 class BaseObjectEstatus(str, Enum):
-    ACTIVO = "Activo"
-    INACTIVO = "Inactivo"
-    ELIMINADO = "Eliminado"
+    ACTIVO = "ACTIVO"
+    INACTIVO = "INACTIVO"
+    ELIMINADO = "ELIMINADO"
 ```
 
 **Convención:**

@@ -263,6 +263,12 @@ def update_many_productos():
                 errors.append({'index': idx, 'errors': ['Producto no encontrado']})
                 continue
             
+            # Validar datos
+            validation_errors = ProductoSchema.validate_update(item)
+            if validation_errors:
+                errors.append({'index': idx, 'errors': validation_errors})
+                continue
+            
             # Actualizar campos
             if 'clave' in item:
                 existing = Producto.query.filter(
@@ -341,4 +347,28 @@ def delete_producto(oid):
         return jsonify({'message': 'Producto eliminado exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500
+
+
+@producto_bp.route('/list', methods=['POST'])
+def get_producto_list():
+    """Obtiene una lista específica de productos a partir de un arreglo de OIDs"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'oid_list' not in data:
+            return jsonify({'errors': ['oid_list es requerido']}), 400
+        
+        oid_list = data.get('oid_list', [])
+        
+        if not isinstance(oid_list, list):
+            return jsonify({'errors': ['oid_list debe ser un arreglo']}), 400
+        
+        productos = Producto.query.filter(
+            Producto.oid.in_(oid_list),
+            Producto.estatus != BaseObjectEstatus.ELIMINADO
+        ).all()
+        
+        return jsonify(ProductoSchema.serialize_list(productos)), 200
+    except Exception as e:
         return jsonify({'errors': [str(e)]}), 500
