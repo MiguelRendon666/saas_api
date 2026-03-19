@@ -44,7 +44,7 @@ Cada microservicio es independiente y debe configurarse por separado.
 
 ### Requisitos Generales
 - Python 3.10+
-- PostgreSQL 14+
+- MySQL 8.0+
 
 ### Configuración por Microservicio
 
@@ -70,7 +70,7 @@ copy .env.example .env  # Windows
 ```
 Editar `.env` con la configuración de base de datos correspondiente.
 
-4. **Crear base de datos PostgreSQL:**
+4. **Crear base de datos MySQL:**
 ```sql
 CREATE DATABASE <nombre_base_datos>;
 ```
@@ -86,7 +86,7 @@ flask db upgrade
 
 ## 📊 Bases de Datos
 
-Crear las siguientes bases de datos en PostgreSQL:
+Crear las siguientes bases de datos en MySQL:
 - `auth_service_db`
 - `catalogues_service_db`
 - `branch_service_db`

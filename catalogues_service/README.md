@@ -28,7 +28,7 @@ SECRET_KEY=your-secret-key-here
 JWT_SECRET_KEY=your-jwt-secret-key-here
 
 # Database Configuration
-DATABASE_URL=postgresql://usuario:password@localhost:5432/microservices_db
+DATABASE_URL=mysql+pymysql://usuario:password@localhost:3306/catalogues_service_db
 
 # Server Configuration
 HOST=0.0.0.0
