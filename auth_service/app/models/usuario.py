@@ -9,7 +9,7 @@ class Usuario(BaseObject):
     
     # Foreign Keys - referencias a otros microservicios
     fkSistema = db.Column(db.String(36), nullable=False, index=True)
-    fkEmpleado = db.Column(db.String(36), nullable=True, index=True)
+    fkEmpleado = db.Column(db.String(36), nullable=False, index=True)
     
     # Relaciones
     usuario_roles = db.relationship('UsuarioRol', back_populates='usuario', lazy='dynamic')
