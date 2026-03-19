@@ -3,6 +3,7 @@ from app import db
 from app.models.usuario import Usuario
 from app.schemas.usuario_schema import UsuarioSchema
 from app.enums import BaseObjectEstatus
+from app.utils import hash_password
 from datetime import datetime
 
 usuario_bp = Blueprint('usuario', __name__, url_prefix='/usuario')
@@ -81,10 +82,13 @@ def create_usuario():
         if Usuario.query.filter_by(usuario=data['usuario']).first():
             return jsonify({'errors': ['El usuario ya existe']}), 400
         
+        # Hashear contraseña con Argon2
+        hashed_password = hash_password(data['contraseña'])
+        
         # Crear usuario
         usuario = Usuario(
             usuario=data['usuario'],
-            contraseña=data['contraseña'],
+            contraseña=hashed_password,
             fkEmpresa=data['fkEmpresa'],
             fkSucursal=data['fkSucursal'],
             fkSistema=data['fkSistema'],
@@ -133,7 +137,8 @@ def update_usuario(oid):
             usuario.usuario = data['usuario']
         
         if 'contraseña' in data:
-            usuario.contraseña = data['contraseña']
+            # Hashear la nueva contraseña con Argon2
+            usuario.contraseña = hash_password(data['contraseña'])
         
         if 'fkEmpresa' in data:
             usuario.fkEmpresa = data['fkEmpresa']
