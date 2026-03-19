@@ -41,15 +41,9 @@ Gestiona la información de los usuarios del sistema.
 |-------|------|---------------|-------------|
 | oid | String(36) | PK, UUID | Identificador único |
 | usuario | String(100) | Unique, Index, Required | Nombre de usuario |
-| contraseña | String(255) | Required | Contraseña encriptada |
-| apellidoPaterno | String(100) | Required | Apellido paterno |
-| apellidoMaterno | String(100) | Required | Apellido materno |
-| nombres | String(200) | Required | Nombre(s) |
-| telefono | String(20) | Opcional | Teléfono de contacto |
-| email | String(120) | Opcional | Correo electrónico |
-| fkEmpresa | String(36) | Index, Required | Referencia a Empresa (catalogues_service) |
-| fkSucursal | String(36) | Index, Required | Referencia a Sucursal (branch_service) |
+| contraseña | String(255) | Required | Contraseña encriptada (Argon2) |
 | fkSistema | String(36) | Index, Required | Referencia a Sistema (catalogues_service) |
+| fkEmpleado | String(36) | Index, Required | Referencia a Empleado (branch_service) - incluye empresa y sucursal |
 | createdAt | DateTime | Auto | Fecha de creación |
 | updatedAt | DateTime | Auto | Fecha de actualización |
 | creado_por | String(36) | Opcional | Usuario que creó el registro |
@@ -61,9 +55,10 @@ Gestiona la información de los usuarios del sistema.
 
 **Índices:**
 - `usuario` (unique)
-- `fkEmpresa`
-- `fkSucursal`
 - `fkSistema`
+- `fkEmpleado`
+
+**Nota:** Los datos personales (nombres, apellidos, email, teléfono) y la relación empresa/sucursal se obtienen a través de `fkEmpleado` del `branch_service`.
 
 ### 2. Rol
 

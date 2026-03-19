@@ -69,7 +69,7 @@ Cada entidad tiene 7 endpoints estándar:
 
 **Nota:** No se permiten operaciones múltiples para usuarios (`/many` no disponible)
 
-**Filtros disponibles:** `usuario`, `nombres`, `email`, `fkEmpresa`, `fkSucursal`
+**Filtros disponibles:** `usuario`, `fkEmpleado`
 
 ### Rol (`/rol`)
 
@@ -129,14 +129,8 @@ curl -X POST http://localhost:8000/usuario/ \
   -d '{
     "usuario": "jperez",
     "contraseña": "password123",
-    "apellidoPaterno": "Pérez",
-    "apellidoMaterno": "González",
-    "nombres": "Juan Carlos",
-    "email": "jperez@example.com",
-    "telefono": "5551234567",
-    "fkEmpresa": "uuid-empresa",
-    "fkSucursal": "uuid-sucursal",
     "fkSistema": "uuid-sistema",
+    "fkEmpleado": "uuid-empleado",
     "creado_por": "uuid-admin"
   }'
 ```
@@ -144,7 +138,7 @@ curl -X POST http://localhost:8000/usuario/ \
 ### Listar usuarios con paginación y filtros
 
 ```bash
-curl "http://localhost:8000/usuario/?page=1&per_page=10&nombres=Juan&fkEmpresa=uuid-empresa"
+curl "http://localhost:8000/usuario/?page=1&per_page=10&usuario=jperez&fkEmpleado=uuid-empleado"
 ```
 
 ### Crear un rol
