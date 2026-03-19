@@ -36,8 +36,6 @@ def get_usuarios():
         
         # Parámetros de filtrado
         usuario = request.args.get('usuario', type=str)
-        fkEmpresa = request.args.get('fkEmpresa', type=str)
-        fkSucursal = request.args.get('fkSucursal', type=str)
         fkEmpleado = request.args.get('fkEmpleado', type=str)
         
         # Query base - excluir eliminados
@@ -46,10 +44,6 @@ def get_usuarios():
         # Aplicar filtros
         if usuario:
             query = query.filter(Usuario.usuario.ilike(f'%{usuario}%'))
-        if fkEmpresa:
-            query = query.filter(Usuario.fkEmpresa == fkEmpresa)
-        if fkSucursal:
-            query = query.filter(Usuario.fkSucursal == fkSucursal)
         if fkEmpleado:
             query = query.filter(Usuario.fkEmpleado == fkEmpleado)
         
@@ -89,10 +83,8 @@ def create_usuario():
         usuario = Usuario(
             usuario=data['usuario'],
             contraseña=hashed_password,
-            fkEmpresa=data['fkEmpresa'],
-            fkSucursal=data['fkSucursal'],
             fkSistema=data['fkSistema'],
-            fkEmpleado=data.get('fkEmpleado'),
+            fkEmpleado=data['fkEmpleado'],
             creado_por=data.get('creado_por'),
             estatus=BaseObjectEstatus.ACTIVO
         )
@@ -139,12 +131,6 @@ def update_usuario(oid):
         if 'contraseña' in data:
             # Hashear la nueva contraseña con Argon2
             usuario.contraseña = hash_password(data['contraseña'])
-        
-        if 'fkEmpresa' in data:
-            usuario.fkEmpresa = data['fkEmpresa']
-        
-        if 'fkSucursal' in data:
-            usuario.fkSucursal = data['fkSucursal']
         
         if 'fkSistema' in data:
             usuario.fkSistema = data['fkSistema']

@@ -1,7 +1,5 @@
 from .base_schema import BaseSchema
-from app.external_catalogues.empresa_external import EmpresaExternal
 from app.external_catalogues.sistema_external import SistemaExternal
-from app.external_catalogues.sucursal_external import SucursalExternal
 from app.external_branch.empleado_external import EmpleadoExternal
 
 
@@ -14,10 +12,6 @@ class UsuarioSchema(BaseSchema):
         data = BaseSchema.serialize_base(usuario)
         data.update({
             'usuario': usuario.usuario,
-            'fkEmpresa': usuario.fkEmpresa,
-            'empresa': EmpresaExternal.get_by_oid(usuario.fkEmpresa) if usuario.fkEmpresa else None,
-            'fkSucursal': usuario.fkSucursal,
-            'sucursal': SucursalExternal.get_by_oid(usuario.fkSucursal) if usuario.fkSucursal else None,
             'fkSistema': usuario.fkSistema,
             'sistema': SistemaExternal.get_by_oid(usuario.fkSistema) if usuario.fkSistema else None,
             'fkEmpleado': usuario.fkEmpleado,
@@ -40,12 +34,10 @@ class UsuarioSchema(BaseSchema):
             errors.append('usuario es requerido')
         if not data.get('contraseña'):
             errors.append('contraseña es requerida')
-        if not data.get('fkEmpresa'):
-            errors.append('fkEmpresa es requerido')
-        if not data.get('fkSucursal'):
-            errors.append('fkSucursal es requerido')
         if not data.get('fkSistema'):
             errors.append('fkSistema es requerido')
+        if not data.get('fkEmpleado'):
+            errors.append('fkEmpleado es requerido')
         
         return errors
     
