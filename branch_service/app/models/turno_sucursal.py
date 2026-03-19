@@ -14,17 +14,9 @@ class TurnoSucursal(BaseObject):
     fkSucursal = db.Column(db.String(36), nullable=False, index=True)
     
     # Relaciones
-    cortes_caja = db.relationship('CorteCaja', back_populates='turno')
+    cortes_caja = db.relationship('CorteCaja', back_populates='turno', lazy='dynamic')
     
-    # Índices
-    __table_args__ = (
-        db.Index('ix_turno_sucursal_empresa', 'fkEmpresa', 'fkSucursal'),
-    )
-    
-    def __repr__(self):
-        return f'<TurnoSucursal {self.nombre}>'
-    
-    # Índices
+    # Índices compuestos
     __table_args__ = (
         db.Index('ix_turno_sucursal_empresa', 'fkEmpresa', 'fkSucursal'),
     )

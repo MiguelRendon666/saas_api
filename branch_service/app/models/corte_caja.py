@@ -20,17 +20,7 @@ class CorteCaja(BaseObject):
     # Relaciones
     turno = db.relationship('TurnoSucursal', back_populates='cortes_caja')
     
-    # Índices
-    __table_args__ = (
-        db.Index('ix_corte_caja_sucursal_fecha', 'fkSucursal', 'fecha'),
-        db.Index('ix_corte_caja_usuario_fecha', 'fkUsuario', 'fecha'),
-        db.Index('ix_corte_caja_turno_fecha', 'fkTurno', 'fecha'),
-    )
-    
-    def __repr__(self):
-        return f'<CorteCaja {self.oid}>'
-    
-    # Índices
+    # Índices compuestos
     __table_args__ = (
         db.Index('ix_corte_caja_sucursal_fecha', 'fkSucursal', 'fecha'),
         db.Index('ix_corte_caja_usuario_fecha', 'fkUsuario', 'fecha'),
