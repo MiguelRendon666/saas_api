@@ -13,17 +13,13 @@ class UsuarioSchema(BaseSchema):
         data = BaseSchema.serialize_base(usuario)
         data.update({
             'usuario': usuario.usuario,
-            'apellidoPaterno': usuario.apellidoPaterno,
-            'apellidoMaterno': usuario.apellidoMaterno,
-            'nombres': usuario.nombres,
-            'telefono': usuario.telefono,
-            'email': usuario.email,
             'fkEmpresa': usuario.fkEmpresa,
             'empresa': EmpresaExternal.get_by_oid(usuario.fkEmpresa) if usuario.fkEmpresa else None,
             'fkSucursal': usuario.fkSucursal,
             'sucursal': SucursalExternal.get_by_oid(usuario.fkSucursal) if usuario.fkSucursal else None,
             'fkSistema': usuario.fkSistema,
             'sistema': SistemaExternal.get_by_oid(usuario.fkSistema) if usuario.fkSistema else None,
+            'fkEmpleado': usuario.fkEmpleado,
         })
         # No incluir contraseña en la serialización
         return data
@@ -42,12 +38,6 @@ class UsuarioSchema(BaseSchema):
             errors.append('usuario es requerido')
         if not data.get('contraseña'):
             errors.append('contraseña es requerida')
-        if not data.get('apellidoPaterno'):
-            errors.append('apellidoPaterno es requerido')
-        if not data.get('apellidoMaterno'):
-            errors.append('apellidoMaterno es requerido')
-        if not data.get('nombres'):
-            errors.append('nombres es requerido')
         if not data.get('fkEmpresa'):
             errors.append('fkEmpresa es requerido')
         if not data.get('fkSucursal'):

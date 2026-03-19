@@ -35,10 +35,9 @@ def get_usuarios():
         
         # Parámetros de filtrado
         usuario = request.args.get('usuario', type=str)
-        nombres = request.args.get('nombres', type=str)
-        email = request.args.get('email', type=str)
         fkEmpresa = request.args.get('fkEmpresa', type=str)
         fkSucursal = request.args.get('fkSucursal', type=str)
+        fkEmpleado = request.args.get('fkEmpleado', type=str)
         
         # Query base - excluir eliminados
         query = Usuario.query.filter(Usuario.estatus != BaseObjectEstatus.ELIMINADO)
@@ -46,14 +45,12 @@ def get_usuarios():
         # Aplicar filtros
         if usuario:
             query = query.filter(Usuario.usuario.ilike(f'%{usuario}%'))
-        if nombres:
-            query = query.filter(Usuario.nombres.ilike(f'%{nombres}%'))
-        if email:
-            query = query.filter(Usuario.email.ilike(f'%{email}%'))
         if fkEmpresa:
             query = query.filter(Usuario.fkEmpresa == fkEmpresa)
         if fkSucursal:
             query = query.filter(Usuario.fkSucursal == fkSucursal)
+        if fkEmpleado:
+            query = query.filter(Usuario.fkEmpleado == fkEmpleado)
         
         # Paginación
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -88,14 +85,10 @@ def create_usuario():
         usuario = Usuario(
             usuario=data['usuario'],
             contraseña=data['contraseña'],
-            apellidoPaterno=data['apellidoPaterno'],
-            apellidoMaterno=data['apellidoMaterno'],
-            nombres=data['nombres'],
-            telefono=data.get('telefono'),
-            email=data.get('email'),
             fkEmpresa=data['fkEmpresa'],
             fkSucursal=data['fkSucursal'],
             fkSistema=data['fkSistema'],
+            fkEmpleado=data.get('fkEmpleado'),
             creado_por=data.get('creado_por'),
             estatus=BaseObjectEstatus.ACTIVO
         )
@@ -142,21 +135,6 @@ def update_usuario(oid):
         if 'contraseña' in data:
             usuario.contraseña = data['contraseña']
         
-        if 'apellidoPaterno' in data:
-            usuario.apellidoPaterno = data['apellidoPaterno']
-        
-        if 'apellidoMaterno' in data:
-            usuario.apellidoMaterno = data['apellidoMaterno']
-        
-        if 'nombres' in data:
-            usuario.nombres = data['nombres']
-        
-        if 'telefono' in data:
-            usuario.telefono = data['telefono']
-        
-        if 'email' in data:
-            usuario.email = data['email']
-        
         if 'fkEmpresa' in data:
             usuario.fkEmpresa = data['fkEmpresa']
         
@@ -165,6 +143,9 @@ def update_usuario(oid):
         
         if 'fkSistema' in data:
             usuario.fkSistema = data['fkSistema']
+        
+        if 'fkEmpleado' in data:
+            usuario.fkEmpleado = data['fkEmpleado']
         
         if 'editado_por' in data:
             usuario.editado_por = data['editado_por']
