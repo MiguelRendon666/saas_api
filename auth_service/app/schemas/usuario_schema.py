@@ -1,7 +1,8 @@
 from .base_schema import BaseSchema
 from app.external_catalogues.empresa_external import EmpresaExternal
 from app.external_catalogues.sistema_external import SistemaExternal
-from app.external_branch.sucursal_external import SucursalExternal
+from app.external_catalogues.sucursal_external import SucursalExternal
+from app.external_branch.empleado_external import EmpleadoExternal
 
 
 class UsuarioSchema(BaseSchema):
@@ -20,6 +21,7 @@ class UsuarioSchema(BaseSchema):
             'fkSistema': usuario.fkSistema,
             'sistema': SistemaExternal.get_by_oid(usuario.fkSistema) if usuario.fkSistema else None,
             'fkEmpleado': usuario.fkEmpleado,
+            'empleado': EmpleadoExternal.get_by_oid(usuario.fkEmpleado) if usuario.fkEmpleado else None,
         })
         # No incluir contraseña en la serialización
         return data

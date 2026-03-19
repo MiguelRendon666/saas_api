@@ -1,5 +1,5 @@
-from app.external_branch.sucursal_external import SucursalExternal
+from app.external_branch.empleado_external import EmpleadoExternal
 
 __all__ = [
-    'SucursalExternal',
+    'EmpleadoExternal',
 ]

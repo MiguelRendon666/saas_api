@@ -2,8 +2,8 @@ import requests
 from config import Config
 
 
-class SucursalExternal:
-    """Wrapper GET-only para Sucursal del branch_service.
+class EmpleadoExternal:
+    """Wrapper GET-only para Empleado del branch_service.
 
     TODO: Deuda técnica - implementar create/update cuando se configure
           autenticación entre servicios (service tokens / API keys).
@@ -13,9 +13,9 @@ class SucursalExternal:
 
     @staticmethod
     def get_by_oid(oid: str) -> dict | None:
-        """Obtiene una sucursal por su OID"""
+        """Obtiene un empleado por su OID"""
         try:
-            response = requests.get(f'{SucursalExternal.BASE_URL}/sucursal/{oid}')
+            response = requests.get(f'{EmpleadoExternal.BASE_URL}/empleado/{oid}')
             if response.status_code == 200:
                 return response.json()
             return None
@@ -24,10 +24,10 @@ class SucursalExternal:
 
     @staticmethod
     def get_list(page: int = 1, per_page: int = 10, **filters) -> dict:
-        """Obtiene el listado paginado de sucursales"""
+        """Obtiene el listado paginado de empleados"""
         try:
             params = {'page': page, 'per_page': per_page, **filters}
-            response = requests.get(f'{SucursalExternal.BASE_URL}/sucursal/', params=params)
+            response = requests.get(f'{EmpleadoExternal.BASE_URL}/empleado/', params=params)
             if response.status_code == 200:
                 return response.json()
             return {'data': [], 'total': 0, 'page': page, 'per_page': per_page, 'pages': 0}
@@ -36,10 +36,10 @@ class SucursalExternal:
 
     @staticmethod
     def get_by_oid_list(oid_list: list) -> list:
-        """Obtiene una lista específica de sucursales por sus OIDs"""
+        """Obtiene una lista específica de empleados por sus OIDs"""
         try:
             response = requests.post(
-                f'{SucursalExternal.BASE_URL}/sucursal/list',
+                f'{EmpleadoExternal.BASE_URL}/empleado/list',
                 json={'oid_list': oid_list}
             )
             if response.status_code == 200:
