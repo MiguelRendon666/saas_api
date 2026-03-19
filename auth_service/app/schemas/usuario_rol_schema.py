@@ -1,15 +1,20 @@
 from .base_schema import BaseSchema
+from app.schemas.usuario_schema import UsuarioSchema
+from app.schemas.rol_schema import RolSchema
+
 
 class UsuarioRolSchema(BaseSchema):
     """Schema para serialización y validación de UsuarioRol"""
-    
+
     @staticmethod
     def serialize(usuario_rol):
         """Serializa un usuario_rol a diccionario"""
         data = BaseSchema.serialize_base(usuario_rol)
         data.update({
             'fkUsuario': usuario_rol.fkUsuario,
-            'fkRol': usuario_rol.fkRol
+            'usuario': UsuarioSchema.serialize(usuario_rol.usuario) if usuario_rol.usuario else None,
+            'fkRol': usuario_rol.fkRol,
+            'rol': RolSchema.serialize(usuario_rol.rol) if usuario_rol.rol else None,
         })
         return data
     

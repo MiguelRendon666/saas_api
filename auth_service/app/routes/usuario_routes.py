@@ -197,10 +197,35 @@ def delete_usuario(oid):
         usuario.estatus = BaseObjectEstatus.ELIMINADO
         usuario.editado_por = data.get('editado_por') if data else None
         usuario.updatedAt = datetime.utcnow()
-        
+
         db.session.commit()
-        
+
         return jsonify({'message': 'Usuario eliminado exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500
+
+
+# 6. POST /usuario/list - Obtener lista específica por OIDs
+@usuario_bp.route('/list', methods=['POST'])
+def get_usuario_list():
+    """Obtiene una lista específica de usuarios a partir de un arreglo de OIDs"""
+    try:
+        data = request.get_json()
+
+        if not data or 'oid_list' not in data:
+            return jsonify({'errors': ['oid_list es requerido']}), 400
+
+        oid_list = data.get('oid_list', [])
+
+        if not isinstance(oid_list, list):
+            return jsonify({'errors': ['oid_list debe ser un arreglo']}), 400
+
+        usuarios = Usuario.query.filter(
+            Usuario.oid.in_(oid_list),
+            Usuario.estatus != BaseObjectEstatus.ELIMINADO
+        ).all()
+
+        return jsonify(UsuarioSchema.serialize_list(usuarios)), 200
+    except Exception as e:
         return jsonify({'errors': [str(e)]}), 500

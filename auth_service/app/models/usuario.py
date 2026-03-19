@@ -18,7 +18,7 @@ class Usuario(BaseObject):
     fkSistema = db.Column(db.String(36), nullable=False, index=True)
     
     # Relaciones
-    usuario_roles = db.relationship('UsuarioRol', back_populates='usuario')
+    usuario_roles = db.relationship('UsuarioRol', back_populates='usuario', lazy='dynamic')
     
     def __repr__(self):
         return f'<Usuario {self.usuario}>'

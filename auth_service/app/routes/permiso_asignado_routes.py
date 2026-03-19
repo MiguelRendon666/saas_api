@@ -288,15 +288,40 @@ def delete_permiso_asignado(oid):
             return jsonify({'errors': ['Permiso asignado no encontrado']}), 404
         
         data = request.get_json()
-        
+
         # Soft delete
         permiso_asignado.estatus = BaseObjectEstatus.ELIMINADO
         permiso_asignado.editado_por = data.get('editado_por') if data else None
         permiso_asignado.updatedAt = datetime.utcnow()
-        
+
         db.session.commit()
-        
+
         return jsonify({'message': 'Permiso asignado eliminado exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500
+
+
+# 8. POST /permiso_asignado/list - Obtener lista específica por OIDs
+@permiso_asignado_bp.route('/list', methods=['POST'])
+def get_permiso_asignado_list():
+    """Obtiene una lista específica de permisos asignados a partir de un arreglo de OIDs"""
+    try:
+        data = request.get_json()
+
+        if not data or 'oid_list' not in data:
+            return jsonify({'errors': ['oid_list es requerido']}), 400
+
+        oid_list = data.get('oid_list', [])
+
+        if not isinstance(oid_list, list):
+            return jsonify({'errors': ['oid_list debe ser un arreglo']}), 400
+
+        permisos_asignados = PermisoAsignado.query.filter(
+            PermisoAsignado.oid.in_(oid_list),
+            PermisoAsignado.estatus != BaseObjectEstatus.ELIMINADO
+        ).all()
+
+        return jsonify(PermisoAsignadoSchema.serialize_list(permisos_asignados)), 200
+    except Exception as e:
         return jsonify({'errors': [str(e)]}), 500

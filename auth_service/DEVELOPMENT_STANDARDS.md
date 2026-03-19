@@ -1041,51 +1041,51 @@ PyMySQL==1.1.0
 Al crear un nuevo microservicio, verificar:
 
 ### Estructura
-- [ ] Estructura de carpetas completa (app/, models/, routes/, schemas/, enums/)
-- [ ] `__init__.py` en cada carpeta
-- [ ] Carpetas `external_{service_name}/` creadas por cada microservicio externo referenciado
+- [x] Estructura de carpetas completa (app/, models/, routes/, schemas/, enums/)
+- [x] `__init__.py` en cada carpeta
+- [x] Carpetas `external_{service_name}/` creadas por cada microservicio externo referenciado
 
 ### Modelos
-- [ ] Heredan de BaseObject
-- [ ] Tienen `__tablename__` definido
-- [ ] Tienen `__repr__` implementado
-- [ ] Índices en campos de búsqueda
-- [ ] Relaciones definidas correctamente
+- [x] Heredan de BaseObject
+- [x] Tienen `__tablename__` definido
+- [x] Tienen `__repr__` implementado
+- [x] Índices en campos de búsqueda
+- [x] Relaciones definidas correctamente
 
 ### Schemas
-- [ ] Heredan de BaseSchema
-- [ ] Implementan `serialize()`
-- [ ] Implementan `serialize_list()`
-- [ ] Implementan `validate_create()`
-- [ ] Implementan `validate_update()`
-- [ ] FKs al mismo microservicio resueltas como objetos completos (via relationships)
-- [ ] FKs a microservicios externos resueltas via módulo `external_`
-- [ ] Tablas intermedias devuelven objetos reales (no listas de IDs)
+- [x] Heredan de BaseSchema
+- [x] Implementan `serialize()`
+- [x] Implementan `serialize_list()`
+- [x] Implementan `validate_create()`
+- [x] Implementan `validate_update()`
+- [x] FKs al mismo microservicio resueltas como objetos completos (via relationships)
+- [x] FKs a microservicios externos resueltas via módulo `external_`
+- [x] Tablas intermedias devuelven objetos reales (no listas de IDs)
 
 ### Rutas
-- [ ] 8 endpoints estándar implementados (incluye `POST /list`)
-- [ ] Blueprint registrado en `app/__init__.py`
-- [ ] Manejo de errores con try/except
-- [ ] Rollback en caso de error
-- [ ] Filtran registros ELIMINADOS
-- [ ] Validación de datos
+- [x] 8 endpoints estándar implementados (incluye `POST /list`)
+- [x] Blueprint registrado en `app/__init__.py`
+- [x] Manejo de errores con try/except
+- [x] Rollback en caso de error
+- [x] Filtran registros ELIMINADOS
+- [x] Validación de datos
 
 ### Módulos Externos (external_)
-- [ ] Carpeta `external_{service_name}/` creada por cada servicio externo referenciado
-- [ ] `__init__.py` en cada carpeta `external_`
-- [ ] Clase wrapper con métodos: `get_by_oid`, `get_list`, `get_by_oid_list`
-- [ ] POST y PUT comentados como deuda técnica (`# TODO`)
-- [ ] `requests` agregado a `requirements.txt`
+- [x] Carpeta `external_{service_name}/` creada por cada servicio externo referenciado
+- [x] `__init__.py` en cada carpeta `external_`
+- [x] Clase wrapper con métodos: `get_by_oid`, `get_list`, `get_by_oid_list`
+- [x] POST y PUT comentados como deuda técnica (`# TODO`)
+- [x] `requests` agregado a `requirements.txt`
 
 ### Configuración
-- [ ] `config.py` con todas las secciones
-- [ ] `.env.example` actualizado
-- [ ] `requirements.txt` con dependencias correctas
-- [ ] `run.py` con factory pattern
+- [x] `config.py` con todas las secciones
+- [x] `.env.example` actualizado
+- [x] `requirements.txt` con dependencias correctas
+- [x] `run.py` con factory pattern
 
 ### Documentación
-- [ ] README.md con instalación y uso
-- [ ] Documentación de endpoints
+- [x] README.md con instalación y uso
+- [x] Documentación de endpoints
 - [ ] Ejemplos de API (opcional)
 
 ---

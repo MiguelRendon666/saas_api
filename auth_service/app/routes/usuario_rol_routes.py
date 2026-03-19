@@ -261,10 +261,35 @@ def delete_usuario_rol(oid):
         usuario_rol.estatus = BaseObjectEstatus.ELIMINADO
         usuario_rol.editado_por = data.get('editado_por') if data else None
         usuario_rol.updatedAt = datetime.utcnow()
-        
+
         db.session.commit()
-        
+
         return jsonify({'message': 'Usuario-Rol eliminado exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500
+
+
+# 8. POST /usuario_rol/list - Obtener lista específica por OIDs
+@usuario_rol_bp.route('/list', methods=['POST'])
+def get_usuario_rol_list():
+    """Obtiene una lista específica de usuario_roles a partir de un arreglo de OIDs"""
+    try:
+        data = request.get_json()
+
+        if not data or 'oid_list' not in data:
+            return jsonify({'errors': ['oid_list es requerido']}), 400
+
+        oid_list = data.get('oid_list', [])
+
+        if not isinstance(oid_list, list):
+            return jsonify({'errors': ['oid_list debe ser un arreglo']}), 400
+
+        usuario_roles = UsuarioRol.query.filter(
+            UsuarioRol.oid.in_(oid_list),
+            UsuarioRol.estatus != BaseObjectEstatus.ELIMINADO
+        ).all()
+
+        return jsonify(UsuarioRolSchema.serialize_list(usuario_roles)), 200
+    except Exception as e:
         return jsonify({'errors': [str(e)]}), 500

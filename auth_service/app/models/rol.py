@@ -7,8 +7,8 @@ class Rol(BaseObject):
     nombre = db.Column(db.String(100), nullable=False, unique=True, index=True)
     
     # Relaciones
-    usuario_roles = db.relationship('UsuarioRol', back_populates='rol')
-    permisos_asignados = db.relationship('PermisoAsignado', back_populates='rol')
+    usuario_roles = db.relationship('UsuarioRol', back_populates='rol', lazy='dynamic')
+    permisos_asignados = db.relationship('PermisoAsignado', back_populates='rol', lazy='dynamic')
     
     def __repr__(self):
         return f'<Rol {self.nombre}>'

@@ -1,8 +1,12 @@
 from .base_schema import BaseSchema
+from app.external_catalogues.empresa_external import EmpresaExternal
+from app.external_catalogues.sistema_external import SistemaExternal
+from app.external_branch.sucursal_external import SucursalExternal
+
 
 class UsuarioSchema(BaseSchema):
     """Schema para serialización y validación de Usuario"""
-    
+
     @staticmethod
     def serialize(usuario):
         """Serializa un usuario a diccionario"""
@@ -15,8 +19,11 @@ class UsuarioSchema(BaseSchema):
             'telefono': usuario.telefono,
             'email': usuario.email,
             'fkEmpresa': usuario.fkEmpresa,
+            'empresa': EmpresaExternal.get_by_oid(usuario.fkEmpresa) if usuario.fkEmpresa else None,
             'fkSucursal': usuario.fkSucursal,
-            'fkSistema': usuario.fkSistema
+            'sucursal': SucursalExternal.get_by_oid(usuario.fkSucursal) if usuario.fkSucursal else None,
+            'fkSistema': usuario.fkSistema,
+            'sistema': SistemaExternal.get_by_oid(usuario.fkSistema) if usuario.fkSistema else None,
         })
         # No incluir contraseña en la serialización
         return data

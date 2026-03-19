@@ -1,19 +1,24 @@
 from .base_schema import BaseSchema
+from app.schemas.permiso_schema import PermisoSchema
+from app.schemas.rol_schema import RolSchema
+
 
 class PermisoAsignadoSchema(BaseSchema):
     """Schema para serialización y validación de PermisoAsignado"""
-    
+
     @staticmethod
     def serialize(permiso_asignado):
         """Serializa un permiso asignado a diccionario"""
         data = BaseSchema.serialize_base(permiso_asignado)
         data.update({
             'fkPermiso': permiso_asignado.fkPermiso,
+            'permiso': PermisoSchema.serialize(permiso_asignado.permiso) if permiso_asignado.permiso else None,
             'fkRol': permiso_asignado.fkRol,
+            'rol': RolSchema.serialize(permiso_asignado.rol) if permiso_asignado.rol else None,
             'crear': permiso_asignado.crear,
             'editar': permiso_asignado.editar,
             'desactivar': permiso_asignado.desactivar,
-            'cancelar': permiso_asignado.cancelar
+            'cancelar': permiso_asignado.cancelar,
         })
         return data
     

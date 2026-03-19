@@ -278,10 +278,35 @@ def delete_permiso(oid):
         permiso.estatus = BaseObjectEstatus.ELIMINADO
         permiso.editado_por = data.get('editado_por') if data else None
         permiso.updatedAt = datetime.utcnow()
-        
+
         db.session.commit()
-        
+
         return jsonify({'message': 'Permiso eliminado exitosamente'}), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'errors': [str(e)]}), 500
+
+
+# 8. POST /permiso/list - Obtener lista específica por OIDs
+@permiso_bp.route('/list', methods=['POST'])
+def get_permiso_list():
+    """Obtiene una lista específica de permisos a partir de un arreglo de OIDs"""
+    try:
+        data = request.get_json()
+
+        if not data or 'oid_list' not in data:
+            return jsonify({'errors': ['oid_list es requerido']}), 400
+
+        oid_list = data.get('oid_list', [])
+
+        if not isinstance(oid_list, list):
+            return jsonify({'errors': ['oid_list debe ser un arreglo']}), 400
+
+        permisos = Permiso.query.filter(
+            Permiso.oid.in_(oid_list),
+            Permiso.estatus != BaseObjectEstatus.ELIMINADO
+        ).all()
+
+        return jsonify(PermisoSchema.serialize_list(permisos)), 200
+    except Exception as e:
         return jsonify({'errors': [str(e)]}), 500
